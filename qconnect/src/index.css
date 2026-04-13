@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@theme {
+  /* Registering your Brand Colors */
+  --color-primary: #00695C;
+  --color-secondary: #1A1A1A;
+  --color-tertiary: #AEEA00;
+  
+  /* Registering your Custom Fonts */
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui;
+  --font-body: "Plus Jakarta Sans", ui-sans-serif, system-ui;
+  --font-arabic: "Amiri", serif;
+}
+
+/* Import fonts from Google */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap');
+
+/* Global Styles */
+@layer base {
+  body {
+    @apply bg-[#F3F5F7] text-secondary antialiased;
+    font-family: var(--font-body);
+  }
+}
+
+/* RTL support for Arabic text */
+.dir-rtl {
+  direction: rtl;
+}
