@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LoadingSanctuary: React.FC = () => {
+const LoadingJourney: React.FC = () => {
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-bg-light">
       <div className="relative">
@@ -15,7 +15,7 @@ const LoadingSanctuary: React.FC = () => {
       
       <div className="flex flex-col items-center gap-2">
         <p className="text-secondary font-display italic animate-bounce">
-          Preparing your sanctuary...
+          Preparing your journey...
         </p>
         <div className="w-48 h-1 bg-neutral-100 rounded-full overflow-hidden">
           <div className="h-full bg-primary animate-progress" style={{ width: '60%' }} />
@@ -25,4 +25,4 @@ const LoadingSanctuary: React.FC = () => {
   );
 };
 
-export default LoadingSanctuary;
+export default LoadingJourney;

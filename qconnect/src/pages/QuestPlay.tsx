@@ -7,6 +7,14 @@ import {
 } from 'lucide-react';
 import { unlockBadge } from '../services/nudgeService';
 
+const QUEST_BADGE_BY_LEVEL: Record<number, string> = {
+  5: 'quest_level_5',
+  6: 'quest_level_6',
+  7: 'quest_level_7',
+  8: 'quest_level_8',
+  10: 'quest_level_10',
+};
+
 const QuestPlay: React.FC = () => {
   const { levelId } = useParams();
   const navigate = useNavigate();
@@ -19,11 +27,27 @@ const QuestPlay: React.FC = () => {
   const [showHint, setShowHint] = useState(false);
   const [loading, setLoading] = useState(true);
   const [resultMode, setResultMode] = useState<'success' | 'fail' | null>(null);
+  const [questionsFetchError, setQuestionsFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     const startLevel = async () => {
       setLoading(true);
+      setQuestionsFetchError(null);
+      const parsedLevelId = Number(levelId);
+      if (!Number.isFinite(parsedLevelId) || parsedLevelId <= 0) {
+        console.error('Invalid levelId:', levelId);
+        setQuestions([]);
+        setLoading(false);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setQuestionsFetchError('You need to be signed in to load quest questions.');
+        setQuestions([]);
+        setLoading(false);
+        return;
+      }
       
       const { data: profile } = await supabase
         .from('user_profiles')
@@ -34,11 +58,19 @@ const QuestPlay: React.FC = () => {
       setHearts(profile?.quest_hearts || 3);
       setHints(profile?.quest_hints || 0);
 
-      const { data: qs } = await supabase
+      const { data: qs, error: questionsError } = await supabase
         .from('quest_questions')
         .select('*')
-        .eq('level_number', levelId)
-        .order('created_at', { ascending: true });
+        .eq('level', parsedLevelId)
+        .order('id', { ascending: true });
+
+      if (questionsError) {
+        console.error('Failed to load quest questions:', questionsError.message);
+        setQuestionsFetchError(questionsError.message);
+        setQuestions([]);
+        setLoading(false);
+        return;
+      }
       
       setQuestions(qs || []);
       setLoading(false);
@@ -66,9 +98,9 @@ const QuestPlay: React.FC = () => {
       if (userAnswers[idx] === q.correct_index) score++;
     });
 
-    const isPerfect = score === questions.length; 
+    const hasPassed = score >= Math.ceil(questions.length * 0.6);
 
-    if (isPerfect) {
+    if (hasPassed) {
       setResultMode('success');
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -80,12 +112,15 @@ const QuestPlay: React.FC = () => {
         .single();
 
       await supabase.from('user_profiles').update({ 
-        current_quest_level: Number(levelId) + 1,
+        current_quest_level: Math.min(Number(levelId) + 1, 10),
         quest_hearts: 3,
-        quest_coins: (profile?.quest_coins || 0) + 1 // Award 1 coin for perfect run
+        quest_coins: (profile?.quest_coins || 0) + 1 // Award 1 coin for level completion
       }).eq('id', user?.id);
 
-      await unlockBadge(`level_${levelId}`);
+      const questBadgeTarget = QUEST_BADGE_BY_LEVEL[Number(levelId)];
+      if (questBadgeTarget) {
+        await unlockBadge(questBadgeTarget);
+      }
     } else {
       setResultMode('fail');
       // Lose one heart for a failed attempt
@@ -106,10 +141,29 @@ const QuestPlay: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center font-display text-[#00695C] animate-pulse">Initializing Mission...</div>;
+  if (loading) return <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center font-display text-[#00695C] animate-pulse">Loading Level...</div>;
 
   const currentQ = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
+
+  if (!questions.length || !currentQ) {
+    return (
+      <div className="min-h-screen bg-[#FBFBFA] flex flex-col items-center justify-center px-6 text-center">
+        <h2 className="text-2xl font-display font-bold text-secondary mb-3">Level not available</h2>
+        <p className="text-sm text-neutral-500 mb-8 max-w-sm">
+          {questionsFetchError
+            ? `Could not load questions: ${questionsFetchError}`
+            : 'This level has no questions yet.'}
+        </p>
+        <button
+          onClick={() => navigate('/quest')}
+          className="bg-[#00695C] text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-teal-900/20 active:scale-95 transition-all"
+        >
+          Back to Quest
+        </button>
+      </div>
+    );
+  }
 
   // --- RESULT VIEW ---
   if (resultMode) {
@@ -119,18 +173,18 @@ const QuestPlay: React.FC = () => {
           {resultMode === 'success' ? <Trophy size={48} className="text-amber-400" /> : <RotateCcw size={48} />}
         </div>
         <h2 className="text-4xl font-display font-bold mb-2">
-          {resultMode === 'success' ? 'Perfect Mission!' : 'Mission Failed'}
+          {resultMode === 'success' ? 'Level Finished!' : 'Try Again'}
         </h2>
         <p className="text-white/60 text-center mb-12 max-w-xs leading-relaxed">
-          {resultMode === 'success' 
-            ? `100% Correct! You earned 1 Coin 🪙 and mastered Level ${levelId}.`
-            : `Some answers were incorrect. You didn't earn a coin. Review and try again.`}
+          {resultMode === 'success'
+            ? `Great job! You earned 1 point 🪙 and unlocked the next level.`
+            : `Some answers were incorrect. Review and try again to earn your point.`}
         </p>
         <button 
           onClick={() => resultMode === 'success' ? navigate('/quest') : window.location.reload()}
           className="w-full max-w-xs bg-white text-[#00695C] py-5 rounded-[24px] font-bold shadow-2xl shadow-black/20 active:scale-95 transition-all"
         >
-          {resultMode === 'success' ? 'Claim Reward' : 'Try Again'}
+          {resultMode === 'success' ? 'Continue' : 'Try Again'}
         </button>
       </div>
     );
@@ -160,7 +214,7 @@ const QuestPlay: React.FC = () => {
       <main className="flex-grow flex flex-col px-6 max-w-2xl mx-auto w-full">
         <div className="mt-4 mb-10">
            <div className="flex justify-between items-end mb-4">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00695C]">Mission Progress</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#00695C]">Level Progress</span>
               <span className="text-xs font-bold text-neutral-400">{currentIndex + 1} / {questions.length}</span>
            </div>
            <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
@@ -172,9 +226,9 @@ const QuestPlay: React.FC = () => {
         </div>
 
         <div className="flex-grow">
-           <h2 className="text-3xl font-display font-bold text-secondary leading-tight mb-12">
-             {currentQ.question_text}
-           </h2>
+            <h2 className="text-3xl font-display font-bold text-secondary leading-tight mb-12">
+              {currentQ.question_text}
+            </h2>
 
            <div className="grid gap-4">
               {currentQ.options.map((opt: string, i: number) => {
@@ -230,7 +284,7 @@ const QuestPlay: React.FC = () => {
                 : 'bg-neutral-100 text-neutral-300'
               }`}
             >
-              {isLastQuestion ? 'Submit Mission' : 'Next Question'} 
+              {isLastQuestion ? 'Finish Level' : 'Next Question'} 
               <ArrowRight size={18} />
             </button>
           </div>

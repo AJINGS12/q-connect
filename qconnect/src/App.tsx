@@ -13,6 +13,11 @@ import Reflections from './pages/Reflections'; // Import the Reflections page
 import Quest from './pages/Quest';
 import QuestPlay from './pages/QuestPlay';
 import Settings from './pages/Settings';
+import QfCallback from './pages/QfCallback';
+import MyBookmarks from './pages/MyBookmarks';
+import WisdomSearch from './pages/WisdomSearch';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 // This helper component connects the URL ID to your SurahView
 const SurahReaderWrapper = () => {
   const { surahId } = useParams();
@@ -48,9 +53,12 @@ function App() {
         <Route path="/home" element={session ? <Home /> : <Navigate to="/" replace />} />
         <Route path="/badges" element={session ? <Badges /> : <Navigate to="/" replace />} />
         <Route path="/landing" element={<LandingPage />} />
-        <Route path="/quest" element={<Quest />} />
-        <Route path="/quest/play/:levelId" element={<QuestPlay />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/callback" element={<QfCallback />} />
+        <Route path="/quest" element={session ? <Quest /> : <Navigate to="/" replace />} />
+        <Route path="/quest/play/:levelId" element={session ? <QuestPlay /> : <Navigate to="/" replace />} />
+        <Route path="/settings" element={session ? <Settings /> : <Navigate to="/" replace />} />
+        <Route path="/bookmarks" element={session ? <MyBookmarks /> : <Navigate to="/" replace />} />
+        <Route path="/search" element={session ? <WisdomSearch /> : <Navigate to="/" replace />} />
         
         {/* The Surah List Page */}
         <Route path="/quran" element={session ? <Quran /> : <Navigate to="/" replace />} />
@@ -60,6 +68,9 @@ function App() {
 
         {/* --- ADDED: The Reflections History Route --- */}
         <Route path="/reflections" element={session ? <Reflections /> : <Navigate to="/" replace />} />
+
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

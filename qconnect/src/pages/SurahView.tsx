@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Play, Pause, RotateCcw, Volume2, ChevronLeft, 
-  Minus, Plus, Award, Globe, Sparkles 
+  Minus, Plus, Award, Globe, Sparkles, BookmarkPlus, Save
 } from 'lucide-react';
 import { unlockBadge } from '../services/nudgeService';
 import { supabase } from '../lib/supabaseClient';
+import { addQuranUserBookmark } from '../services/quranUserApi';
 
 // --- MINI COMPONENT: CELEBRATION TOAST ---
 const BadgeToast = ({ name, onClose }: { name: string, onClose: () => void }) => {
@@ -44,23 +45,40 @@ const toArabicNumber = (num: number) => {
   return num.toString().replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]);
 };
 
+const SURAH_BADGE_TARGETS: Record<number, string> = {
+  1: 'surah_fatihah',
+  2: 'surah_baqarah',
+  18: 'surah_kahf',
+  36: 'surah_yasin',
+  55: 'surah_rahman',
+  56: 'surah_waqiah',
+  67: 'surah_mulk',
+  112: 'surah_ikhlas',
+  113: 'surah_falaq',
+  114: 'surah_nas',
+};
+
 const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   const navigate = useNavigate();
   const [verses, setVerses] = useState<any[]>([]);
   const [surahInfo, setSurahInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [fontSize, setFontSize] = useState(38);
+  const [fontSize, setFontSize] = useState(typeof window !== 'undefined' && window.innerWidth < 768 ? 28 : 38);
   const [completedVerses, setCompletedVerses] = useState<number[]>([]);
   
   const [showBadgeToast, setShowBadgeToast] = useState(false);
+  const [hasCompletedSurah, setHasCompletedSurah] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState<number | null>(null);
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [bookmarkSaving, setBookmarkSaving] = useState(false);
+  const [bookmarkStatus, setBookmarkStatus] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const verseRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
+      setHasCompletedSurah(false);
       setLoading(true);
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -96,6 +114,13 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     };
     fetchData();
   }, [chapterId]);
+
+  useEffect(() => {
+    if (!verses.length || hasCompletedSurah) return;
+    if (completedVerses.length >= verses.length) {
+      handleSurahCompletion();
+    }
+  }, [completedVerses, verses.length, hasCompletedSurah]);
 
   useEffect(() => {
     audioRef.current = new Audio();
@@ -216,7 +241,10 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   };
 
   const handleSurahCompletion = async () => {
-    const targetId = `${chapterId}`;
+    if (hasCompletedSurah || !surahInfo) return;
+    setHasCompletedSurah(true);
+
+    const targetId = SURAH_BADGE_TARGETS[chapterId];
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
@@ -226,9 +254,11 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
         .eq('id', user.id);
     }
 
-    const result = await unlockBadge(targetId);
-    if (result?.success) {
-      setShowBadgeToast(true);
+    if (targetId) {
+      const result = await unlockBadge(targetId);
+      if (result?.success) {
+        setShowBadgeToast(true);
+      }
     }
   };
 
@@ -252,6 +282,21 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     }
     setIsPlaying(false);
     playVerseAudio(0);
+  };
+
+  const handleSaveBookmark = async () => {
+    const verseNumber = currentAudioIndex !== null ? currentAudioIndex + 1 : Math.max(1, completedVerses.length || 1);
+
+    setBookmarkSaving(true);
+    setBookmarkStatus(null);
+    const result = await addQuranUserBookmark({
+      key: chapterId,
+      verseNumber,
+      mushaf: 1,
+      isReading: true,
+    });
+    setBookmarkSaving(false);
+    setBookmarkStatus(result.success ? `Saved bookmark at Ayah ${verseNumber}` : (result.message || 'Failed to save bookmark.'));
   };
 
   const getFullTransliteration = (words: any[]) => {
@@ -280,7 +325,7 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
           <ChevronLeft size={24} />
         </button>
 
-        <h1 className="text-6xl font-display text-[#00695C] mt-4 mb-2 tracking-tight italic">{surahInfo.name_simple}</h1>
+        <h1 className="text-4xl md:text-6xl font-display text-[#00695C] mt-4 mb-2 tracking-tight italic">{surahInfo.name_simple}</h1>
         
         <div className="flex flex-col items-center gap-2 mt-6">
            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{completedVerses.length} out of {surahInfo.verses_count} Verses Completed</p>
@@ -291,8 +336,8 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 mb-12">
-        <div className="bg-[#F1F3F5] rounded-2xl p-3 flex items-center justify-between shadow-sm border border-neutral-100">
-          <div className="flex items-center gap-4 px-4 border-r border-neutral-200">
+        <div className="bg-[#F1F3F5] rounded-2xl p-3 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm border border-neutral-100 mt-4 md:mt-0">
+          <div className="flex items-center gap-4 px-4 w-full md:w-auto md:border-r border-neutral-200 justify-center md:justify-start">
             <Globe size={18} className="text-neutral-500" />
             <span className="text-xs font-medium text-neutral-600">Sahih International</span>
           </div>
@@ -304,7 +349,18 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
               <button onClick={() => setFontSize(s => s + 2)} className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm"><Plus size={14}/></button>
             </div>
           </div>
+          <button
+            onClick={handleSaveBookmark}
+            disabled={bookmarkSaving}
+            className="ml-3 inline-flex items-center gap-2 bg-white px-3 py-2 rounded-xl shadow-sm text-[#00695C] text-xs font-bold disabled:opacity-60 hover:bg-teal-50 transition-colors border border-transparent hover:border-teal-100"
+          >
+            <Save size={14} />
+            {bookmarkSaving ? 'Saving...' : 'Bookmark'}
+          </button>
         </div>
+        {bookmarkStatus && (
+          <p className="text-xs text-[#00695C] mt-3 px-2">{bookmarkStatus}</p>
+        )}
       </div>
 
       <main className="max-w-4xl mx-auto px-6 space-y-16">
@@ -315,7 +371,7 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
           return (
             <div key={v.id} ref={verseRefs.current[i]} className={`flex flex-col w-full border-b border-neutral-100 pb-12 transition-all duration-700 ${isReciting ? 'scale-[1.02] opacity-100' : ''}`}>
               <div className="flex flex-row-reverse items-start gap-8 mb-8">
-                <p className={`text-right font-arabic leading-[2.5] flex-grow transition-colors duration-500 ${isReciting ? 'text-[#00695C]' : 'text-secondary'}`} style={{ fontSize: `${fontSize}px` }}>
+                <p dir="rtl" className={`text-right font-arabic leading-[2.5] flex-grow transition-colors duration-500 ${isReciting ? 'text-[#00695C]' : 'text-secondary'}`} style={{ fontSize: `${fontSize}px` }}>
                   {v.text_uthmani}
                   <button onClick={() => toggleVerse(v.id)} className={`inline-flex items-center justify-center w-14 h-14 rounded-full border-2 font-arabic text-xl mx-4 transition-all ${isDone || isReciting ? 'bg-[#00695C] border-[#00695C] text-white shadow-lg' : 'border-neutral-100 text-neutral-300'}`}>
                     {toArabicNumber(i + 1)}
@@ -332,11 +388,11 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
       </main>
 
       {/* --- AUDIO PLAYER --- */}
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-xl px-6 z-50">
-        <div className="bg-[#004D40] text-white p-5 rounded-[32px] shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md">
-          <div className="flex items-center gap-6">
-            <button onClick={handlePlayPause} className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#004D40] active:scale-95 transition-all">
-              {isPlaying ? <Pause fill="currentColor" size={28} /> : <Play fill="currentColor" size={28} />}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-lg px-6 z-50">
+        <div className="bg-[#004D40] text-white p-3.5 rounded-[24px] shadow-2xl flex items-center justify-between border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-5">
+            <button onClick={handlePlayPause} className="w-11 h-11 bg-white rounded-xl flex items-center justify-center text-[#004D40] active:scale-95 transition-all">
+              {isPlaying ? <Pause fill="currentColor" size={24} /> : <Play fill="currentColor" size={24} />}
             </button>
             <div>
               <p className="text-[10px] font-bold opacity-50 uppercase tracking-widest">{isPlaying ? `Verse ${(currentAudioIndex ?? 0) + 1}` : 'Reciting'}</p>

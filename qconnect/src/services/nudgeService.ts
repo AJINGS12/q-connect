@@ -58,7 +58,7 @@ export const getDailyNudge = async (): Promise<ThemeVerse | null> => {
       .from('user_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError || !profile) {
       console.error('Profile not found or error:', profileError);
@@ -256,7 +256,7 @@ export const getUserProfile = async (): Promise<UserProfile | null> => {
       .from('user_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (error && error.code !== 'PGRST116') {
       console.error('Error fetching profile:', error);
@@ -276,18 +276,41 @@ export const unlockBadge = async (targetId: string): Promise<{ success: boolean 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false };
 
-    const { error } = await supabase
+    const unlockedAt = new Date().toISOString();
+
+    const { data: updated, error } = await supabase
       .from('badge_progress')
       .update({ 
         is_unlocked: true, 
-        unlocked_at: new Date().toISOString() 
+        unlocked_at: unlockedAt
       })
       .eq('user_id', user.id)
-      .eq('target_id', targetId);
+      .eq('target_id', targetId)
+      .select('id')
+      .limit(1);
 
     if (error) {
       console.error('Error unlocking badge:', error);
       return { success: false };
+    }
+
+    if (!updated || updated.length === 0) {
+      const { error: insertError } = await supabase
+        .from('badge_progress')
+        .insert({
+          user_id: user.id,
+          target_id: targetId,
+          badge_name: targetId,
+          badge_icon: '🏅',
+          criteria_type: 'milestone',
+          is_unlocked: true,
+          unlocked_at: unlockedAt,
+        });
+
+      if (insertError) {
+        console.error('Error inserting unlocked badge:', insertError);
+        return { success: false };
+      }
     }
 
     return { success: true };

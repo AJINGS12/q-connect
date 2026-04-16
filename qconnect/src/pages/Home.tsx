@@ -5,9 +5,11 @@ import DailyNudge from '../components/DailyNudge';
 import { 
   Search, Menu, X, BookOpen, Award, PenLine, 
   Settings, User, ChevronRight, Bell, History,
-  Gamepad2, LogOut, Shield, Mail, Check
+  Gamepad2, LogOut, Shield, Mail, Check, BookmarkPlus
 } from 'lucide-react';
 import { updateReflection } from '../services/nudgeService';
+import quranImg from '../assets/quran.jpg';
+import logoOfficial from '../assets/logo_official.png';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +37,13 @@ const Home: React.FC = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       setUserAuth(user);
-      const { data: profileData } = await supabase.from('user_profiles').select('*').eq('id', user.id).single();
+      const { data: profileData } = await supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
+      
+      if (!profileData || !profileData.role) {
+         navigate('/onboarding', { replace: true });
+         return;
+      }
+      
       setProfile(profileData);
 
       const { data: refData } = await supabase
@@ -124,17 +132,24 @@ const Home: React.FC = () => {
   const userAvatar = userAuth?.user_metadata?.avatar_url;
 
   return (
-    <div className="min-h-screen bg-[#F3F5F7] font-body text-secondary transition-all">
+    <div className="min-h-screen bg-bg-soft font-body text-secondary transition-all">
       
       {/* --- SIDEBAR MENU --- */}
       <div className={`fixed inset-0 z-[70] transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)} />
         <div className={`relative w-72 bg-white h-full shadow-2xl p-8 flex flex-col transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-          <button onClick={() => setIsMenuOpen(false)} className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-primary"><X size={20}/></button>
-          <h2 className="font-display text-2xl text-primary mb-10 text-[#00695C]">QConnect</h2>
+          <button onClick={() => setIsMenuOpen(false)} className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-primary transition-colors hover:bg-neutral-50 rounded-full"><X size={20}/></button>
+          <div className="flex items-center gap-3 mb-12 mt-4">
+             <div className="w-10 h-10 bg-white border border-neutral-100 rounded-xl flex items-center justify-center shadow-sm overflow-hidden p-1">
+                <img src={logoOfficial} alt="QConnect Logo" className="w-full h-full object-contain" />
+             </div>
+             <h2 className="font-display text-2xl font-bold text-primary">QConnect</h2>
+          </div>
           <nav className="space-y-2 flex-grow">
             {[
               { icon: <BookOpen size={20}/>, label: "The Quran", path: "/quran" },
+              { icon: <Search size={20}/>, label: "Wisdom Search", path: "/search" },
+              { icon: <BookmarkPlus size={20}/>, label: "My Bookmarks", path: "/bookmarks" },
               { icon: <Gamepad2 size={20}/>, label: "Knowledge Quest", path: "/quest" },
               { icon: <History size={20}/>, label: "My Reflections", path: "/reflections" },
               { icon: <Award size={20}/>, label: "Badges", path: "/badges" },
@@ -146,9 +161,9 @@ const Home: React.FC = () => {
                     if(item.path) navigate(item.path);
                     setIsMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-[#00695C]/5 hover:text-[#00695C] transition-all text-neutral-600 font-medium text-sm text-left"
+                className="w-full flex items-center gap-4 p-4 rounded-[20px] hover:bg-primary/5 hover:text-primary transition-all text-neutral-500 font-medium text-sm text-left group"
               >
-                {item.icon} {item.label}
+                <span className="transition-transform group-hover:scale-110">{item.icon}</span> {item.label}
               </button>
             ))}
           </nav>
@@ -156,63 +171,86 @@ const Home: React.FC = () => {
       </div>
 
       {/* --- TOP NAV --- */}
-      <nav className="bg-white/90 backdrop-blur-xl sticky top-0 z-50 border-b border-neutral-100/50 py-2">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4 md:gap-8">
-          <div className="flex items-center gap-4 shrink-0">
-            <button onClick={() => setIsMenuOpen(true)} className="p-3 hover:bg-neutral-100 rounded-2xl transition-all active:scale-90 text-[#00695C]">
-              <Menu size={26} />
+      <nav className="glass-panel sticky top-0 z-50 py-3">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-2 flex items-center gap-3 md:gap-8">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            <button onClick={() => setIsMenuOpen(true)} className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-neutral-50 border border-neutral-100/50 rounded-xl md:rounded-2xl transition-all active:scale-95 text-primary bg-white shadow-sm">
+              <Menu className="w-5 h-5 md:w-6 md:h-6" />
             </button>
             <div className="hidden md:block">
-               <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Welcome back</p>
-               <p className="text-sm font-bold text-secondary">{firstName}</p>
+               <p className="text-sm font-bold text-secondary">Peace be upon you, {firstName}</p>
             </div>
           </div>
           
-          <div className="flex-grow relative group">
-            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within:text-[#00695C] transition-colors">
-              <Search size={20} />
+          <div className="flex-grow relative group max-w-xl mx-auto">
+            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-neutral-300 group-focus-within:text-primary transition-colors">
+              <Search size={18} />
             </div>
             <input 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search Surah Name..." 
-              className="w-full bg-white border-2 border-neutral-100 py-4 pl-14 pr-6 rounded-[30px] shadow-sm focus:border-[#00695C]/30 focus:outline-none transition-all font-light text-md text-secondary"
+              placeholder="Search Surahs..." 
+              className="w-full bg-neutral-50/50 border border-neutral-100 py-2 md:py-3.5 pl-10 md:pl-14 pr-4 md:pr-6 rounded-xl md:rounded-2xl focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all font-light text-xs md:text-sm text-secondary"
             />
+            
+            {filteredSurahs.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-3xl shadow-2xl border border-neutral-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                {filteredSurahs.map((s) => (
+                  <button 
+                    key={s.id}
+                    onClick={() => navigate(`/quran/${s.id}`)}
+                    className="w-full flex items-center justify-between p-5 hover:bg-neutral-50 transition-colors border-b border-neutral-50 last:border-none"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary font-bold text-xs">{s.id}</div>
+                      <div className="text-left">
+                        <p className="font-bold text-secondary">{s.name_simple}</p>
+                        <p className="text-[10px] text-neutral-400 uppercase tracking-widest">{s.revelation_place} • {s.verses_count} Verses</p>
+                      </div>
+                    </div>
+                    <ChevronRight size={16} className="text-neutral-200" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-3 shrink-0 relative" ref={modalRef}>
-            <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-100 px-4 py-2 rounded-2xl shadow-sm">
-              <span className="text-lg leading-none">🪙</span>
-              <span className="text-sm font-black text-amber-700 leading-none">{profile?.quest_coins || 0}</span>
-            </div>
+            <button 
+              onClick={() => navigate('/quest')}
+              className="flex items-center gap-1.5 md:gap-2.5 bg-amber-50 border border-amber-100 px-2 py-1.5 md:px-4 md:py-2.5 rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95 group"
+            >
+              <span className="text-sm md:text-lg leading-none transition-transform group-hover:scale-125">🪙</span>
+              <span className="text-[10px] md:text-xs font-black text-amber-700">{profile?.quest_coins || 0}</span>
+            </button>
             
             <button 
               onClick={() => setIsProfileModalOpen(!isProfileModalOpen)}
-              className="w-12 h-12 rounded-[20px] bg-[#00695C]/10 border border-[#00695C]/5 flex items-center justify-center text-[#00695C] font-bold shadow-sm overflow-hidden active:scale-95 transition-all"
+              className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-neutral-100 flex items-center justify-center text-primary font-bold shadow-sm overflow-hidden active:scale-95 transition-all hover:border-primary/20"
             >
               {(userAvatar && !imgError) ? (
                 <img src={userAvatar} alt="Profile" className="w-full h-full object-cover" onError={() => setImgError(true)} />
               ) : (
-                <span className="uppercase">{firstName.charAt(0)}</span>
+                <span className="uppercase text-sm tracking-tighter">{firstName.charAt(0)}</span>
               )}
             </button>
 
             {isProfileModalOpen && (
-              <div className="absolute top-full right-0 mt-4 w-72 bg-white rounded-[32px] shadow-2xl border border-neutral-100 p-6 z-[100] animate-in zoom-in-95 duration-200">
-                <div className="text-center border-b border-neutral-50 pb-6 mb-6">
-                  <div className="w-20 h-20 rounded-[28px] bg-teal-50 mx-auto mb-4 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
-                    {(userAvatar && !imgError) ? <img src={userAvatar} className="w-full h-full object-cover" /> : <span className="text-2xl text-[#00695C] font-bold uppercase">{firstName.charAt(0)}</span>}
+              <div className="absolute top-full right-0 mt-4 w-72 bg-white rounded-premium-card shadow-2xl border border-neutral-100 p-8 z-[100] animate-in slide-in-from-top-4 duration-300">
+                <div className="text-center border-b border-neutral-50 pb-8 mb-6">
+                  <div className="w-24 h-24 rounded-[32px] bg-primary/5 mx-auto mb-4 flex items-center justify-center overflow-hidden border-2 border-white shadow-lg">
+                    {(userAvatar && !imgError) ? <img src={userAvatar} className="w-full h-full object-cover" /> : <span className="text-3xl text-primary font-bold uppercase">{firstName.charAt(0)}</span>}
                   </div>
                   <h3 className="font-bold text-secondary text-lg">{displayName}</h3>
-                  <p className="text-xs text-neutral-400">{userAuth?.email}</p>
+                  <p className="text-[10px] text-neutral-400 uppercase tracking-widest mt-1">Believer</p>
                 </div>
                 <div className="space-y-1">
-                   <button onClick={() => { navigate('/settings'); setIsProfileModalOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-neutral-50 text-sm font-medium text-neutral-600 transition-colors">
-                      <Shield size={18} /> Account Security
+                   <button onClick={() => { navigate('/settings'); setIsProfileModalOpen(false); }} className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-neutral-50 text-xs font-bold text-neutral-500 transition-all uppercase tracking-widest">
+                      <Settings size={16} /> Preferences
                    </button>
-                   <button onClick={handleSignOut} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 text-sm font-medium text-red-500 transition-colors">
-                      <LogOut size={18} /> Sign Out
+                   <button onClick={handleSignOut} className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-red-50 text-xs font-bold text-red-500 transition-all uppercase tracking-widest">
+                      <LogOut size={16} /> Sign Out
                    </button>
                 </div>
               </div>
@@ -221,106 +259,213 @@ const Home: React.FC = () => {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto px-6 pt-10 space-y-16">
-        <section className="animate-in fade-in slide-in-from-top duration-700">
+      <main className="max-w-6xl mx-auto px-6 pt-12 space-y-20 pb-32">
+        <section className="animate-in fade-in slide-in-from-top-8 duration-1000">
            <DailyNudge />
         </section>
 
         {/* --- DYNAMIC CONTINUE READING --- */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">In Progress</span>
-          </div>
-          <h2 className="text-3xl font-display text-secondary">Continue Reading</h2>
-          <div onClick={() => navigate(`/quran/${profile?.last_surah_num || '1'}`)} className="bg-white rounded-[40px] p-6 md:p-10 shadow-sm flex flex-col md:flex-row gap-8 md:gap-12 items-center border border-white group cursor-pointer hover:shadow-md transition-all">
-            <div className="w-full md:w-80 aspect-square rounded-[36px] overflow-hidden shadow-2xl shadow-neutral-200 bg-neutral-100">
-              <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+        <section className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.3em]">Latest Journey</span>
+              <h2 className="text-3xl font-display font-bold text-secondary">Continue Reading</h2>
             </div>
-            <div className="flex-grow space-y-7 w-full">
-              <div className="flex items-center gap-3">
-                <span className="bg-[#00695C]/10 text-[#00695C] px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider">Surah {profile?.last_surah_num || '1'}</span>
-                <span className="text-[10px] text-neutral-400 font-medium tracking-tight uppercase">Resume Reading</span>
+            <button onClick={() => navigate('/quran')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">View All Surahs →</button>
+          </div>
+
+          <div 
+            onClick={() => navigate(`/quran/${profile?.last_surah_num || '1'}`)} 
+            className="premium-card p-10 md:p-14 flex flex-col md:flex-row gap-12 items-center group cursor-pointer active:scale-[0.99] relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            
+            <div className="w-full md:w-96 aspect-[4/3] rounded-[32px] overflow-hidden shadow-2xl relative z-10">
+              <img src={quranImg} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              <div className="absolute bottom-6 left-6 flex items-center gap-2">
+                 <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[10px] font-bold uppercase tracking-widest">Surah {profile?.last_surah_num || '1'}</div>
               </div>
-              <div>
-                <h3 className="text-5xl font-display text-[#00695C] tracking-tight italic">{profile?.last_surah_name || 'Al-Fatihah'}</h3>
+            </div>
+
+            <div className="flex-grow space-y-8 w-full relative z-10">
+              <div className="space-y-1">
+                <p className="text-[10px] text-primary font-black tracking-[0.3em] uppercase">My Progress</p>
+                <h3 className="text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name || 'Al-Fatihah'}</h3>
               </div>
-              <button className="bg-[#00695C] text-white px-10 py-5 rounded-[22px] flex items-center gap-3 font-bold text-sm hover:bg-[#004d40] transition-all">
-                Resume <ChevronRight size={18} />
+              
+              <div className="flex items-center gap-8">
+                 <div className="space-y-1">
+                    <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Progress</p>
+                    <p className="text-lg font-bold text-secondary italic">Part of Chapter {Math.ceil((profile?.last_surah_num || 1) / 4)}</p>
+                 </div>
+                 <div className="w-px h-10 bg-neutral-100" />
+                 <div className="space-y-1">
+                    <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Last Read</p>
+                    <p className="text-lg font-bold text-secondary">Today</p>
+                 </div>
+              </div>
+
+              <button className="bg-primary text-white pl-12 pr-10 py-5 rounded-[22px] flex items-center gap-8 font-bold text-sm shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-95 transition-all group/btn">
+                Resume Wisdom 
+                <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover/btn:translate-x-2 transition-transform">
+                  <ChevronRight size={18} />
+                </span>
               </button>
             </div>
           </div>
         </section>
 
-        {/* --- QUEST ACCESS --- */}
-        <section onClick={() => navigate('/quest')} className="bg-[#00695C] rounded-[40px] p-8 text-white shadow-xl cursor-pointer hover:scale-[1.01] transition-all group relative overflow-hidden text-left">
-          <div className="relative z-10 flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">New Challenge</span>
-              <h2 className="text-3xl font-display font-bold">Knowledge Quest</h2>
+        {/* --- EXPERIENCE GRID: QUEST + BOOKMARKS --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <section 
+            onClick={() => navigate('/quest')} 
+            className="premium-card p-10 h-72 flex flex-col justify-between group cursor-pointer bg-primary text-white border-none shadow-primary/10 hover:shadow-primary/30 relative"
+          >
+            <div className="absolute top-0 right-0 p-8 text-white/10 transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-6">
+              <Gamepad2 size={120} />
             </div>
-            <ChevronRight size={24} />
-          </div>
-          <Gamepad2 size={120} className="absolute -right-8 -bottom-8 text-white/5 -rotate-12" />
-        </section>
+            <div className="relative z-10 space-y-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/50">Level {profile?.current_quest_level || 1}</span>
+              <h2 className="text-3xl font-display font-bold">Knowledge <br/>Quest</h2>
+            </div>
+            <div className="relative z-10 flex items-center justify-between">
+              <p className="text-sm font-medium text-white/70">Test your wisdom & earn rewards</p>
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center group-hover:translate-x-2 transition-transform">
+                <ChevronRight size={20} />
+              </div>
+            </div>
+          </section>
+
+          <section 
+            onClick={() => navigate('/bookmarks')} 
+            className="premium-card p-10 h-72 flex flex-col justify-between group cursor-pointer relative"
+          >
+             <div className="absolute top-0 right-0 p-8 text-primary/5 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-6">
+              <BookmarkPlus size={120} />
+            </div>
+            <div className="relative z-10 space-y-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/40">Quran.com Sync</span>
+              <h2 className="text-3xl font-display font-bold text-secondary">Bookmarks <br/>Library</h2>
+            </div>
+            <div className="relative z-10 flex items-center justify-between">
+              <p className="text-sm font-medium text-neutral-400">Your sacred collection, synced live</p>
+              <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:translate-x-2 transition-transform">
+                <ChevronRight size={20} />
+              </div>
+            </div>
+          </section>
+        </div>
 
         {/* --- JOURNAL --- */}
-        <section className="space-y-10">
-          <h2 className="text-3xl font-display text-secondary">Recent Reflections</h2>
+        <section className="space-y-12">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.3em]">Spiritual Archive</span>
+              <h2 className="text-3xl font-display font-bold text-secondary">Recent Reflections</h2>
+            </div>
+            <button onClick={() => navigate('/reflections')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">Open Journal →</button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {reflections.map((ref) => (
+            {reflections.length > 0 ? reflections.map((ref) => (
               <div 
                 key={ref.id} 
                 onClick={() => {
                   setSelectedRef(ref);
                   setEditText(ref.reflection_text);
                 }}
-                className="bg-white p-10 rounded-[40px] shadow-sm border border-transparent hover:border-[#00695C]/10 transition-all group flex flex-col min-h-[340px] cursor-pointer active:scale-95"
+                className="bg-white p-10 rounded-premium-card shadow-sm border border-neutral-100 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group flex flex-col min-h-[360px] cursor-pointer active:scale-95 relative overflow-hidden"
               >
-                <div className="flex justify-between items-start mb-8">
-                  <span className="text-[10px] font-bold text-neutral-300 uppercase tracking-widest">
-                    {new Date(ref.created_at).toLocaleDateString()}
-                  </span>
-                  <PenLine size={18} className="text-neutral-200 group-hover:text-[#00695C] transition-colors" />
+                <div className="absolute bottom-0 right-0 text-primary/5 p-4 group-hover:scale-110 transition-transform"><PenLine size={80} /></div>
+                
+                <div className="flex justify-between items-start mb-10 relative z-10">
+                  <div className="bg-primary/5 px-3 py-1.5 rounded-lg">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">
+                      {new Date(ref.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
                 </div>
-                <h4 className="text-xl font-bold text-[#00695C] mb-5 uppercase tracking-tight">Verse {ref.verse_key}</h4>
-                <p className="text-md text-neutral-500 italic line-clamp-5 leading-relaxed">"{ref.reflection_text}"</p>
+                
+                <div className="space-y-4 relative z-10">
+                  <h4 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em]">Verse {ref.verse_key}</h4>
+                  <p className="text-xl text-secondary italic font-light leading-relaxed line-clamp-4 group-hover:text-primary transition-colors">
+                    "{ref.reflection_text}"
+                  </p>
+                </div>
+
+                <div className="mt-auto pt-8 border-t border-neutral-50 flex items-center justify-between relative z-10">
+                   <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Edit Entry</span>
+                   <ChevronRight size={14} className="text-neutral-200 group-hover:text-primary transition-colors" />
+                </div>
               </div>
-            ))}
+            )) : (
+              <div className="md:col-span-3 py-20 bg-white rounded-premium-card border border-neutral-100/50 flex flex-col items-center justify-center text-center">
+                 <div className="w-16 h-16 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-200 mb-4"><History size={32}/></div>
+                 <h3 className="text-lg font-bold text-secondary">No reflections yet</h3>
+                 <p className="text-sm text-neutral-400 mt-2">Start reading to capture your spiritual insights.</p>
+              </div>
+            )}
           </div>
         </section>
 
         {/* --- MODAL FOR EDITING --- */}
         {selectedRef && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedRef(null)} />
-            <div className="relative bg-white rounded-[40px] p-8 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-[#00695C]">Review Reflection</h3>
-                <button onClick={() => setSelectedRef(null)} className="p-2 hover:bg-neutral-50 rounded-full"><X size={20} className="text-neutral-400" /></button>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-md animate-in fade-in duration-500" onClick={() => setSelectedRef(null)} />
+            <div className="relative bg-white rounded-premium-card p-10 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
+              <div className="flex justify-between items-center mb-10">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Reviewing Entry</span>
+                  <h3 className="text-3xl font-display font-bold text-primary italic">Verse {selectedRef.verse_key}</h3>
+                </div>
+                <button onClick={() => setSelectedRef(null)} className="w-10 h-10 flex items-center justify-center hover:bg-neutral-50 rounded-full transition-colors"><X size={20} className="text-neutral-300" /></button>
               </div>
-              <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest block mb-2">Verse {selectedRef.verse_key}</label>
+              
               <textarea 
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                className="w-full h-48 p-6 bg-neutral-50 rounded-[24px] border-none focus:ring-2 focus:ring-[#00695C]/20 text-secondary italic leading-relaxed transition-all resize-none mb-8"
+                className="w-full h-56 p-8 bg-neutral-50/50 rounded-[32px] border-none focus:ring-4 focus:ring-primary/5 text-lg text-secondary italic leading-relaxed transition-all resize-none mb-10 placeholder:text-neutral-300"
+                placeholder="What did you learn from this verse?"
               />
-              <button 
-                onClick={handleUpdate}
-                disabled={isSaving || editText === selectedRef.reflection_text}
-                className="w-full bg-[#00695C] text-white py-5 rounded-[24px] font-bold shadow-xl shadow-[#00695C]/20 flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50"
-              >
-                {isSaving ? "Updating..." : <><Check size={18}/> Update Entry</>}
-              </button>
+              
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setSelectedRef(null)}
+                  className="px-10 py-5 rounded-2xl font-bold text-sm text-neutral-400 hover:bg-neutral-50 transition-colors"
+                >
+                  Discard
+                </button>
+                <button 
+                  onClick={handleUpdate}
+                  disabled={isSaving || editText === selectedRef.reflection_text}
+                  className="flex-grow bg-primary text-white py-5 rounded-[22px] font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {isSaving ? "Syncing..." : <><Check size={18}/> Update Journal</>}
+                </button>
+              </div>
             </div>
           </div>
         )}
-
-        <footer className="py-20 text-center">
-           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-neutral-300">
-             © 2026 QConnect • Crafted for Wisdom
-           </p>
-        </footer>
       </main>
+
+      <footer className="mt-auto py-20 border-t border-neutral-100 px-6 md:px-10 bg-white">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+           <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-white border border-neutral-100 rounded-lg flex items-center justify-center shadow-lg overflow-hidden p-2">
+                 <img src={logoOfficial} alt="QConnect Logo" className="w-full h-full object-contain" />
+              </div>
+              <span className="text-xs font-bold text-secondary uppercase tracking-widest">QConnect</span>
+           </div>
+           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-neutral-300">
+             The Sacred Breath • 2026
+           </p>
+           <div className="flex items-center gap-8 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+              <a href="#" className="hover:text-primary transition-colors">Contact</a>
+           </div>
+        </div>
+      </footer>
     </div>
   );
 };
