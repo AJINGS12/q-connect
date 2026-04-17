@@ -97,17 +97,16 @@ const LandingPage: React.FC = () => {
           <p className="max-w-2xl mx-auto text-xl text-neutral-400 mb-16 leading-relaxed font-light animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
             Embedding Quranic wisdom into your everyday life through contextual nudges, micro-reflections, and gamified quests.
           </p>
-          
-          <div className="flex justify-center animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+          <div className="flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
             <button 
               onClick={handleGoogleLogin}
-              className="group relative flex items-center justify-center gap-4 bg-primary text-white pl-12 pr-10 py-6 rounded-full text-lg font-bold shadow-2xl shadow-primary/30 transition-all hover:-translate-y-1 hover:shadow-primary/50 active:scale-95 overflow-hidden"
+              className="group relative flex items-center justify-center gap-3 bg-primary text-white px-8 py-4 rounded-full text-base font-bold shadow-2xl shadow-primary/30 transition-all hover:-translate-y-1 hover:shadow-primary/50 active:scale-95 overflow-hidden"
             >
               <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500" />
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6 bg-white rounded-full p-1 relative z-10" alt="Google" />
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5 bg-white rounded-full p-0.5 relative z-10" alt="Google" />
               <span className="relative z-10">Sign in with Google</span>
             </button>
-            <p className="mt-6 text-[10px] uppercase font-bold tracking-widest text-neutral-400 max-w-sm mx-auto">
+            <p className="mt-6 text-[10px] uppercase font-bold tracking-widest text-neutral-400 max-w-sm mx-auto text-center">
               By signing in, you agree to our <a href="/terms" className="text-primary hover:underline">Terms</a> and <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
             </p>
           </div>
