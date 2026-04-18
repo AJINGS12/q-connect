@@ -76,6 +76,9 @@ export const startQfLogin = (fallbackRedirectUri: string) => {
     `&scope=${scope}` +
     `&state=${encodeURIComponent(state)}`;
 
+  console.log('[OAuth] Final Auth URL:', url);
+  console.log('[OAuth] Sending redirect_uri:', finalRedirectUri);
+
   window.location.assign(url);
 };
 
