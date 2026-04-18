@@ -150,8 +150,8 @@ const Home: React.FC = () => {
     );
   }
 
-  // Only show "Continue Reading" if the user has actually opened a surah (last_surah_num is set and > 0)
-  const hasStarted = profile?.last_surah_num && parseInt(profile.last_surah_num) > 0;
+  // Only show "Continue Reading" if the user has a surah number AND a surah name (verified progress)
+  const hasStarted = !!(profile?.last_surah_num && profile?.last_surah_name);
 
   return (
     <div className="min-h-screen bg-bg-soft font-body text-secondary transition-all">
