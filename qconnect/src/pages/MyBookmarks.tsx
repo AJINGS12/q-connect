@@ -44,7 +44,7 @@ const MyBookmarks: React.FC = () => {
   }, [isConnected]);
 
   const handleConnect = () => {
-    startQfLogin(`${window.location.origin}/callback`);
+    startQfLogin();
   };
 
   const formatDate = (iso: string) => {

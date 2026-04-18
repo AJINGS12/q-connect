@@ -27,10 +27,9 @@ export default function QfCallback() {
         return;
       }
 
-      const redirectUri = `${window.location.origin}/callback`;
       try {
         // Exchange the OAuth code for tokens
-        const result = await exchangeQfCodeForToken(code, redirectUri);
+        const result = await exchangeQfCodeForToken(code);
         console.log('[QfCallback] Token exchange result:', result);
         console.log('[QfCallback] access_token stored:', localStorage.getItem('qf_access_token')?.substring(0, 40) + '...');
         console.log('[QfCallback] refresh_token stored:', !!localStorage.getItem('qf_refresh_token'));

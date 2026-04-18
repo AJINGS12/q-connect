@@ -2,13 +2,11 @@ const QF_OAUTH_BASE =
   (import.meta.env.VITE_QURAN_OAUTH_BASE as string | undefined) ||
   'https://prelive-oauth2.quran.foundation';
 
-// If you get a 'redirect_uri mismatch' error, you can hardcode this in Vercel
-// as VITE_QURAN_REDIRECT_URI=https://your-domain.vercel.app/callback
-const QF_REDIRECT_URI = 
-  (import.meta.env.VITE_QURAN_REDIRECT_URI as string | undefined);
+// --- CRITICAL: MATCH THIS EXACTLY WITH YOUR DEVELOPER PORTAL ---
+// If the portal has '.../callback/', use a slash. If it has '.../callback', NO slash.
+const QF_REDIRECT_URI = "https://q-connect.vercel.app/callback";
 
 // In the browser, token exchange must go through the Vite proxy to avoid CORS.
-// The proxy rewrites '/qf-oauth' -> '' and forwards to QF_OAUTH_BASE.
 const QF_TOKEN_BASE =
   typeof window !== 'undefined' ? '/qf-oauth' : QF_OAUTH_BASE;
 
@@ -59,38 +57,28 @@ export const refreshQfToken = async (): Promise<string | null> => {
   }
 };
 
-export const startQfLogin = (fallbackRedirectUri: string) => {
+export const startQfLogin = () => {
   if (!QF_CLIENT_ID) throw new Error('Missing VITE_QURAN_CLIENT_ID');
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
-
-  // Hardcoded fallback for production demo
-  const PRODUCTION_URI = "https://q-connect.vercel.app/callback";
-  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri || PRODUCTION_URI;
 
   const scope = encodeURIComponent('openid offline_access bookmark streak');
   const url =
     `${QF_OAUTH_BASE}/oauth2/auth` +
     `?response_type=code` +
     `&client_id=${encodeURIComponent(QF_CLIENT_ID)}` +
-    `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
+    `&redirect_uri=${encodeURIComponent(QF_REDIRECT_URI)}` +
     `&scope=${scope}` +
     `&state=${encodeURIComponent(state)}`;
 
-  console.log('[OAuth] Final Auth URL:', url);
-  console.log('[OAuth] Sending redirect_uri:', finalRedirectUri);
-
+  console.log('[OAuth] Redirecting with fixed URI:', QF_REDIRECT_URI);
   window.location.assign(url);
 };
 
-export const exchangeQfCodeForToken = async (code: string, fallbackRedirectUri: string) => {
+export const exchangeQfCodeForToken = async (code: string) => {
   if (!QF_CLIENT_ID || !QF_CLIENT_SECRET) {
     throw new Error('Missing Quran OAuth client credentials');
   }
-
-  // Hardcoded fallback for production demo
-  const PRODUCTION_URI = "https://q-connect.vercel.app/callback";
-  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri || PRODUCTION_URI;
 
   const res = await fetch(`${QF_TOKEN_BASE}/oauth2/token`, {
     method: 'POST',
