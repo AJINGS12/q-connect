@@ -26,16 +26,33 @@ const SurahReaderWrapper = () => {
 
 function App() {
   const [session, setSession] = useState<any>(null);
+  const [isOnboarded, setIsOnboarded] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    const checkUser = async (currentSession: any) => {
+      if (currentSession) {
+        const { data } = await supabase.from('user_profiles').select('role').eq('id', currentSession.user.id).maybeSingle();
+        setIsOnboarded(!!data?.role);
+        setSession(currentSession);
+      } else {
+        setSession(null);
+        setIsOnboarded(false);
+      }
       setLoading(false);
+    };
+
+    // Initial check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      checkUser(session);
     });
+
+    // Listeners
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      setLoading(true);
+      checkUser(session);
     });
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -48,27 +65,27 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={!session ? <LandingPage /> : <Navigate to="/home" replace />} />
+        {/* Core Entry */}
+        <Route path="/" element={!session ? <LandingPage /> : (isOnboarded ? <Navigate to="/home" replace /> : <Navigate to="/onboarding" replace />)} />
+        <Route path="/landing" element={!session ? <LandingPage /> : <Navigate to="/" replace />} />
+        
+        {/* Onboarding - Must have session, but must NOT be fully onboarded (or allows them to stay if they are still doing it) */}
         <Route path="/onboarding" element={session ? <Onboarding /> : <Navigate to="/" replace />} />
-        <Route path="/home" element={session ? <Home /> : <Navigate to="/" replace />} />
-        <Route path="/badges" element={session ? <Badges /> : <Navigate to="/" replace />} />
-        <Route path="/landing" element={<LandingPage />} />
+        
+        {/* Protected Routes - require session AND onboarding */}
+        <Route path="/home" element={session ? (isOnboarded ? <Home /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/badges" element={session ? (isOnboarded ? <Badges /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/quest" element={session ? (isOnboarded ? <Quest /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/quest/play/:levelId" element={session ? (isOnboarded ? <QuestPlay /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/settings" element={session ? (isOnboarded ? <Settings /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/bookmarks" element={session ? (isOnboarded ? <MyBookmarks /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/search" element={session ? (isOnboarded ? <WisdomSearch /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/quran" element={session ? (isOnboarded ? <Quran /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/quran/:surahId" element={session ? (isOnboarded ? <SurahReaderWrapper /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/reflections" element={session ? (isOnboarded ? <Reflections /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+
+        {/* Public / Utility */}
         <Route path="/callback" element={<QfCallback />} />
-        <Route path="/quest" element={session ? <Quest /> : <Navigate to="/" replace />} />
-        <Route path="/quest/play/:levelId" element={session ? <QuestPlay /> : <Navigate to="/" replace />} />
-        <Route path="/settings" element={session ? <Settings /> : <Navigate to="/" replace />} />
-        <Route path="/bookmarks" element={session ? <MyBookmarks /> : <Navigate to="/" replace />} />
-        <Route path="/search" element={session ? <WisdomSearch /> : <Navigate to="/" replace />} />
-        
-        {/* The Surah List Page */}
-        <Route path="/quran" element={session ? <Quran /> : <Navigate to="/" replace />} />
-        
-        {/* The Actual Reading Page (e.g., /quran/18) */}
-        <Route path="/quran/:surahId" element={session ? <SurahReaderWrapper /> : <Navigate to="/" replace />} />
-
-        {/* --- ADDED: The Reflections History Route --- */}
-        <Route path="/reflections" element={session ? <Reflections /> : <Navigate to="/" replace />} />
-
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
 

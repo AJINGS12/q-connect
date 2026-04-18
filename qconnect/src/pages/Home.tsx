@@ -41,7 +41,7 @@ const Home: React.FC = () => {
       
       if (!profileData || !profileData.role) {
          navigate('/onboarding', { replace: true });
-         return;
+         return false;
       }
       
       setProfile(profileData);
@@ -53,12 +53,18 @@ const Home: React.FC = () => {
         .order('created_at', { ascending: false })
         .limit(3);
       setReflections(refData || []);
+      return true;
     }
+    return true;
   };
 
   useEffect(() => {
     setLoading(true);
-    fetchHomeData().then(() => setLoading(false));
+    fetchHomeData().then((shouldStopLoading) => {
+      if (shouldStopLoading !== false) {
+        setLoading(false);
+      }
+    });
 
     const fetchSurahList = async () => {
       try {
@@ -130,6 +136,16 @@ const Home: React.FC = () => {
   const displayName = userAuth?.user_metadata?.full_name || userAuth?.user_metadata?.name || "User";
   const firstName = displayName.split(' ')[0];
   const userAvatar = userAuth?.user_metadata?.avatar_url;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-soft">
+        <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const hasStarted = !!profile?.last_surah_num;
 
   return (
     <div className="min-h-screen bg-bg-soft font-body text-secondary transition-all">
@@ -268,8 +284,8 @@ const Home: React.FC = () => {
         <section className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.3em]">Latest Journey</span>
-              <h2 className="text-3xl font-display font-bold text-secondary">Continue Reading</h2>
+              <span className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.3em]">{hasStarted ? "Latest Journey" : "Begin Journey"}</span>
+              <h2 className="text-3xl font-display font-bold text-secondary">{hasStarted ? "Continue Reading" : "Start Reading"}</h2>
             </div>
             <button onClick={() => navigate('/quran')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">View All Surahs →</button>
           </div>
@@ -297,17 +313,17 @@ const Home: React.FC = () => {
               <div className="flex items-center gap-8">
                  <div className="space-y-1">
                     <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Progress</p>
-                    <p className="text-lg font-bold text-secondary italic">Part of Chapter {Math.ceil((profile?.last_surah_num || 1) / 4)}</p>
+                    <p className="text-lg font-bold text-secondary italic">{hasStarted ? `Part of Chapter ${Math.ceil((profile?.last_surah_num || 1) / 4)}` : "Not Started"}</p>
                  </div>
                  <div className="w-px h-10 bg-neutral-100" />
                  <div className="space-y-1">
                     <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Last Read</p>
-                    <p className="text-lg font-bold text-secondary">Today</p>
+                    <p className="text-lg font-bold text-secondary">{hasStarted ? "Today" : "Never"}</p>
                  </div>
               </div>
 
               <button className="bg-primary text-white pl-12 pr-10 py-5 rounded-[22px] flex items-center gap-8 font-bold text-sm shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-95 transition-all group/btn">
-                Resume Wisdom 
+                {hasStarted ? "Resume Wisdom" : "Start Reading"} 
                 <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover/btn:translate-x-2 transition-transform">
                   <ChevronRight size={18} />
                 </span>
