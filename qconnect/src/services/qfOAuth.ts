@@ -2,6 +2,11 @@ const QF_OAUTH_BASE =
   (import.meta.env.VITE_QURAN_OAUTH_BASE as string | undefined) ||
   'https://prelive-oauth2.quran.foundation';
 
+// If you get a 'redirect_uri mismatch' error, you can hardcode this in Vercel
+// as VITE_QURAN_REDIRECT_URI=https://your-domain.vercel.app/callback
+const QF_REDIRECT_URI = 
+  (import.meta.env.VITE_QURAN_REDIRECT_URI as string | undefined);
+
 // In the browser, token exchange must go through the Vite proxy to avoid CORS.
 // The proxy rewrites '/qf-oauth' -> '' and forwards to QF_OAUTH_BASE.
 const QF_TOKEN_BASE =
@@ -54,27 +59,32 @@ export const refreshQfToken = async (): Promise<string | null> => {
   }
 };
 
-export const startQfLogin = (redirectUri: string) => {
+export const startQfLogin = (fallbackRedirectUri: string) => {
   if (!QF_CLIENT_ID) throw new Error('Missing VITE_QURAN_CLIENT_ID');
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
+
+  // Use the environment override if available, otherwise use the dynamic one passed from the UI
+  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri;
 
   const scope = encodeURIComponent('openid offline_access bookmark streak');
   const url =
     `${QF_OAUTH_BASE}/oauth2/auth` +
     `?response_type=code` +
     `&client_id=${encodeURIComponent(QF_CLIENT_ID)}` +
-    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+    `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
     `&scope=${scope}` +
     `&state=${encodeURIComponent(state)}`;
 
   window.location.assign(url);
 };
 
-export const exchangeQfCodeForToken = async (code: string, redirectUri: string) => {
+export const exchangeQfCodeForToken = async (code: string, fallbackRedirectUri: string) => {
   if (!QF_CLIENT_ID || !QF_CLIENT_SECRET) {
     throw new Error('Missing Quran OAuth client credentials');
   }
+
+  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri;
 
   const res = await fetch(`${QF_TOKEN_BASE}/oauth2/token`, {
     method: 'POST',
@@ -85,7 +95,7 @@ export const exchangeQfCodeForToken = async (code: string, redirectUri: string) 
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: redirectUri,
+      redirect_uri: finalRedirectUri,
       scope: 'openid offline_access bookmark streak',
     }),
   });
