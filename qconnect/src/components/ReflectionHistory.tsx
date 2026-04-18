@@ -24,15 +24,18 @@ const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTr
           // 1. Clean the verse key (handle ranges like '94:5-6')
           const cleanKey = ref.verse_key.split('-')[0];
           
-          // 2. Fetch Arabic Text and Translation in one robust call
-          const verseUrl = `https://api.quran.com/api/v4/verses/by_key/${cleanKey}?fields=text_uthmani&translations=131`;
-          const vRes = await fetch(verseUrl).then(r => r.json());
-          
+          // 2. Fetch Arabic Text
+          const arabicUrl = `https://api.quran.com/api/v4/verses/by_key/${cleanKey}?fields=text_uthmani`;
+          const vRes = await fetch(arabicUrl).then(r => r.json());
           const arabicText = vRes.verse?.text_uthmani || "Arabic text unavailable";
-          const tText = vRes.verse?.translations?.[0]?.text || "Translation unavailable";
+          
+          // 3. Fetch Translation (ID 85 is reliable)
+          const tUrl = `https://api.quran.com/api/v4/quran/translations/85?verse_key=${cleanKey}`;
+          const tResult = await fetch(tUrl).then(r => r.json());
+          const tText = tResult.translations?.[0]?.text || "Translation unavailable";
 
-          // 3. Clean translation of HTML tags
-          const translationText = tText.replace(/<[^>]*>?/gm, '');
+          // 4. Clean translation of HTML tags
+          const translationText = tText.replace(/<[^>]*>?/gm, '').trim();
 
           return {
             ...ref,
