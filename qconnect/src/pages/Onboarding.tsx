@@ -63,7 +63,7 @@ const Onboarding: React.FC = () => {
           updated_at: new Date() 
         });
       if (!error) {
-        navigate('/home');
+        window.location.assign('/home');
       } else {
         console.error(error);
         setErrorMsg(error.message || JSON.stringify(error));

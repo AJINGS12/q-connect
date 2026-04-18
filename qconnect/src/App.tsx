@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
 import Badges from './pages/Badges';
@@ -22,6 +22,15 @@ import TermsOfService from './pages/TermsOfService';
 const SurahReaderWrapper = () => {
   const { surahId } = useParams();
   return <SurahView chapterId={Number(surahId)} />;
+};
+
+// Global scroll to top on navigation
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 };
 
 function App() {
@@ -64,6 +73,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Core Entry */}
         <Route path="/" element={!session ? <LandingPage /> : (isOnboarded ? <Navigate to="/home" replace /> : <Navigate to="/onboarding" replace />)} />
