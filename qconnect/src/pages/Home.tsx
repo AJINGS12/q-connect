@@ -286,8 +286,47 @@ const Home: React.FC = () => {
            <DailyNudge />
         </section>
 
-        {/* --- DYNAMIC CONTINUE READING --- */}
-        {hasStarted && (
+        {/* --- DYNAMIC JOURNEY SECTION --- */}
+        {!hasStarted ? (
+          <section className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">New Journey</span>
+              <h2 className="text-3xl font-display font-bold text-secondary">Start Your Journey</h2>
+            </div>
+
+            <div 
+              onClick={() => navigate('/quran')} 
+              className="premium-card p-10 md:p-14 flex flex-col md:flex-row gap-12 items-center group cursor-pointer active:scale-[0.99] relative overflow-hidden bg-primary text-white border-none"
+            >
+              <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              
+              <div className="w-full md:w-96 aspect-[4/3] rounded-[32px] overflow-hidden shadow-2xl relative z-10 border-4 border-white/20">
+                <img src={quranImg} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+                   <p className="text-white text-lg font-display font-medium italic">Begin with the Wisdom of the Ages</p>
+                </div>
+              </div>
+
+              <div className="flex-grow space-y-8 w-full relative z-10">
+                <div className="space-y-1">
+                  <p className="text-[10px] text-white/60 font-black tracking-[0.3em] uppercase">Ready to Begin?</p>
+                  <h3 className="text-5xl font-display font-bold text-white tracking-tight">Explore the Quran</h3>
+                </div>
+                
+                <p className="text-lg text-white/80 font-light leading-relaxed max-w-md">
+                   Discover the divine guidance tailored to your journey. Start reading today and capture your first reflection.
+                </p>
+
+                <button className="bg-white text-primary pl-12 pr-10 py-5 rounded-[22px] flex items-center gap-8 font-bold text-sm shadow-xl shadow-black/10 hover:shadow-black/20 active:scale-95 transition-all group/btn">
+                  Start Reading 
+                  <span className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover/btn:translate-x-2 transition-transform">
+                    <ChevronRight size={18} />
+                  </span>
+                </button>
+              </div>
+            </div>
+          </section>
+        ) : (
           <section className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
@@ -320,7 +359,7 @@ const Home: React.FC = () => {
                 <div className="flex items-center gap-8">
                    <div className="space-y-1">
                       <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Progress</p>
-                      <p className="text-lg font-bold text-secondary italic">Part of Chapter {Math.ceil((profile?.last_surah_num || 1) / 4)}</p>
+                      <p className="text-lg font-bold text-secondary italic">Part of Chapter {Math.ceil((parseInt(profile?.last_surah_num) || 1) / 4)}</p>
                    </div>
                    <div className="w-px h-10 bg-neutral-100" />
                    <div className="space-y-1">
