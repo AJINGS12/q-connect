@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/qf-oauth/(.*)",
+      "destination": "https://prelive-oauth2.quran.foundation/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
