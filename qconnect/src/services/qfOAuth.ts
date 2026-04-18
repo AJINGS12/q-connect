@@ -64,8 +64,9 @@ export const startQfLogin = (fallbackRedirectUri: string) => {
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
 
-  // Use the environment override if available, otherwise use the dynamic one passed from the UI
-  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri;
+  // Hardcoded fallback for production demo
+  const PRODUCTION_URI = "https://q-connect.vercel.app/callback";
+  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri || PRODUCTION_URI;
 
   const scope = encodeURIComponent('openid offline_access bookmark streak');
   const url =
@@ -87,7 +88,9 @@ export const exchangeQfCodeForToken = async (code: string, fallbackRedirectUri: 
     throw new Error('Missing Quran OAuth client credentials');
   }
 
-  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri;
+  // Hardcoded fallback for production demo
+  const PRODUCTION_URI = "https://q-connect.vercel.app/callback";
+  const finalRedirectUri = QF_REDIRECT_URI || fallbackRedirectUri || PRODUCTION_URI;
 
   const res = await fetch(`${QF_TOKEN_BASE}/oauth2/token`, {
     method: 'POST',
