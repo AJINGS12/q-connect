@@ -95,7 +95,7 @@ export const exchangeQfCodeForToken = async (code: string) => {
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: finalRedirectUri,
+      redirect_uri: QF_REDIRECT_URI,
       scope: 'openid offline_access bookmark streak',
     }),
   });
