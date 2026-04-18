@@ -18,6 +18,8 @@ export interface Reflection {
   user_id: string;
   verse_key: string;
   reflection_text: string;
+  arabic_text?: string;
+  translation_text?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -91,7 +93,9 @@ export const getDailyNudge = async (): Promise<ThemeVerse | null> => {
 // Fixed the 400 Bad Request error by removing the .upsert logic
 export const saveReflection = async (
   verseKey: string, 
-  reflectionText: string
+  reflectionText: string,
+  arabicText?: string,
+  translationText?: string
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -113,6 +117,8 @@ export const saveReflection = async (
         .from('reflections')
         .update({
           reflection_text: reflectionText,
+          arabic_text: arabicText,
+          translation_text: translationText,
           updated_at: new Date().toISOString()
         })
         .eq('id', existing.id);
@@ -123,7 +129,9 @@ export const saveReflection = async (
         .insert({
           user_id: user.id,
           verse_key: verseKey,
-          reflection_text: reflectionText
+          reflection_text: reflectionText,
+          arabic_text: arabicText,
+          translation_text: translationText
         });
     }
 

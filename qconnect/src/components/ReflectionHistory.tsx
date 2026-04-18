@@ -20,8 +20,16 @@ const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTr
       console.log('ReflectionHistory: Fetched reflections:', data);
       
       const enrichedData = await Promise.all((data || []).map(async (ref) => {
+        // Use saved DB columns if available
+        if (ref.arabic_text && ref.translation_text) {
+          return {
+            ...ref,
+            arabic: ref.arabic_text,
+            translation: ref.translation_text
+          };
+        }
+
         try {
-          // 1. Clean the verse key (handle ranges like '94:5-6')
           const cleanKey = ref.verse_key.split('-')[0];
           
           // 2. Fetch Arabic Text

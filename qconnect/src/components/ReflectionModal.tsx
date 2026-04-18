@@ -51,8 +51,8 @@ const ReflectionModal: React.FC<ReflectionModalProps> = ({
     if (!reflectionText.trim()) return;
 
     setSaving(true);
-    const result = await saveReflection(verseKey, reflectionText);
-    
+    const result = await saveReflection(verseKey, reflectionText, verseText, translation);
+
     if (result.success) {
       setSaved(true);
       // Call the onSave callback if provided
@@ -71,7 +71,7 @@ const ReflectionModal: React.FC<ReflectionModalProps> = ({
   return (
     <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="bg-white rounded-[40px] max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
-        
+
         {/* Header */}
         <div className="bg-[#00695C] text-white p-8">
           <div className="flex items-center justify-between">
@@ -97,7 +97,7 @@ const ReflectionModal: React.FC<ReflectionModalProps> = ({
 
         {/* Scrollable Content */}
         <div className="p-8 space-y-8 overflow-y-auto">
-          
+
           {/* Verse Display */}
           <div className="bg-neutral-50 rounded-3xl p-8 border border-neutral-100">
             <p className="font-arabic text-3xl text-right mb-6 leading-[1.8] text-neutral-800 dir-rtl">
@@ -111,12 +111,12 @@ const ReflectionModal: React.FC<ReflectionModalProps> = ({
           {/* Input Area */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-               <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-                 Your Spiritual Notes
-               </label>
-               {isLoading && <Loader2 className="animate-spin text-teal-600" size={16} />}
+              <label className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+                Your Spiritual Notes
+              </label>
+              {isLoading && <Loader2 className="animate-spin text-teal-600" size={16} />}
             </div>
-            
+
             <textarea
               value={reflectionText}
               onChange={(e) => setReflectionText(e.target.value)}
@@ -144,9 +144,8 @@ const ReflectionModal: React.FC<ReflectionModalProps> = ({
             <button
               onClick={handleSave}
               disabled={!reflectionText.trim() || saving || saved}
-              className={`flex-[2] py-4 px-6 rounded-2xl font-bold text-white transition-all shadow-lg flex items-center justify-center gap-2 ${
-                saved ? 'bg-green-500' : 'bg-[#00695C] hover:scale-[1.02] active:scale-95'
-              } disabled:opacity-50 disabled:scale-100`}
+              className={`flex-[2] py-4 px-6 rounded-2xl font-bold text-white transition-all shadow-lg flex items-center justify-center gap-2 ${saved ? 'bg-green-500' : 'bg-[#00695C] hover:scale-[1.02] active:scale-95'
+                } disabled:opacity-50 disabled:scale-100`}
             >
               {saving ? <Loader2 className="animate-spin" size={20} /> : saved ? <CheckCircle2 size={20} /> : null}
               {saving ? 'Saving...' : saved ? 'Reflection Saved' : existingReflection ? 'Update Reflection' : 'Save Reflection'}
