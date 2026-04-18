@@ -45,6 +45,11 @@ const Home: React.FC = () => {
       }
       
       setProfile(profileData);
+      console.log('Home: User Profile State:', {
+        last_surah_num: profileData?.last_surah_num,
+        last_surah_name: profileData?.last_surah_name,
+        has_started: !!(profileData?.last_surah_num && parseInt(profileData.last_surah_num) > 0)
+      });
 
       const { data: refData } = await supabase
         .from('reflections')
@@ -145,7 +150,8 @@ const Home: React.FC = () => {
     );
   }
 
-  const hasStarted = !!profile?.last_surah_num;
+  // Only show "Continue Reading" if the user has actually opened a surah (last_surah_num is set and > 0)
+  const hasStarted = profile?.last_surah_num && parseInt(profile.last_surah_num) > 0;
 
   return (
     <div className="min-h-screen bg-bg-soft font-body text-secondary transition-all">

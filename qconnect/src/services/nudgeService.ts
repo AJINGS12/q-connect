@@ -112,7 +112,7 @@ export const saveReflection = async (
     let result;
 
     if (existing) {
-      // 2. If it exists, Update it
+      // 2. Try Full Update first
       result = await supabase
         .from('reflections')
         .update({
@@ -122,8 +122,20 @@ export const saveReflection = async (
           updated_at: new Date().toISOString()
         })
         .eq('id', existing.id);
+
+      // --- FAILSAFE: If Full Update fails, try Basic Update ---
+      if (result.error) {
+        console.warn('Full update failed, falling back to basic update...', result.error);
+        result = await supabase
+          .from('reflections')
+          .update({
+            reflection_text: reflectionText,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id);
+      }
     } else {
-      // 3. If it doesn't exist, Insert new
+      // 3. Try Full Insert first
       result = await supabase
         .from('reflections')
         .insert({
@@ -133,6 +145,18 @@ export const saveReflection = async (
           arabic_text: arabicText,
           translation_text: translationText
         });
+
+      // --- FAILSAFE: If Full Insert fails, try Basic Insert ---
+      if (result.error) {
+        console.warn('Full insert failed, falling back to basic insert...', result.error);
+        result = await supabase
+          .from('reflections')
+          .insert({
+            user_id: user.id,
+            verse_key: verseKey,
+            reflection_text: reflectionText
+          });
+      }
     }
 
     if (result.error) {
