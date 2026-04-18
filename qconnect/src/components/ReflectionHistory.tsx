@@ -22,28 +22,16 @@ const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTr
       const enrichedData = await Promise.all((data || []).map(async (ref) => {
         try {
           // 1. Fetch Arabic Text (Uthmani)
-          const verseUrl = `https://api.quran.com/api/v4/quran/verses/uthmani?verse_key=${ref.verse_key}`;
+          const verseUrl = `https://api.quran.com/api/v4/verses/by_key/${ref.verse_key}?fields=text_uthmani`;
           const vRes = await fetch(verseUrl).then(r => r.json());
-          const arabicText = vRes.verses?.[0]?.text_uthmani || "Arabic text unavailable";
-
-          // 2. Fetch Translation with Fallback Logic (ID 131 then ID 22)
-          let translationText = "Translation unavailable";
+          const arabicText = vRes.verse?.text_uthmani || "Arabic text unavailable";
           
-          const fetchTrans = async (id: number) => {
-            const url = `https://api.quran.com/api/v4/quran/translations/${id}?verse_key=${ref.verse_key}`;
-            const res = await fetch(url).then(r => r.json());
-            return res.translations?.[0]?.text;
-          };
+          // 2. Fetch Translation
+          const tUrl = `https://api.quran.com/api/v4/quran/translations/131?verse_key=${ref.verse_key}`;
+          const tRes = await fetch(tUrl).then(r => r.json());
+          const tText = tRes.translations?.[0]?.text;
 
-          // Try Clear Quran (131)
-          let tText = await fetchTrans(131);
-          
-          // Fallback to Sahih International (22) if 131 is missing
-          if (!tText) {
-            tText = await fetchTrans(22);
-          }
-
-          translationText = tText || "Translation unavailable";
+          const translationText = tText || "Translation unavailable";
 
           return {
             ...ref,

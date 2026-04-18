@@ -281,56 +281,58 @@ const Home: React.FC = () => {
         </section>
 
         {/* --- DYNAMIC CONTINUE READING --- */}
-        <section className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.3em]">{hasStarted ? "Latest Journey" : "Begin Journey"}</span>
-              <h2 className="text-3xl font-display font-bold text-secondary">{hasStarted ? "Continue Reading" : "Start Reading"}</h2>
-            </div>
-            <button onClick={() => navigate('/quran')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">View All Surahs →</button>
-          </div>
-
-          <div 
-            onClick={() => navigate(`/quran/${profile?.last_surah_num || '1'}`)} 
-            className="premium-card p-10 md:p-14 flex flex-col md:flex-row gap-12 items-center group cursor-pointer active:scale-[0.99] relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            
-            <div className="w-full md:w-96 aspect-[4/3] rounded-[32px] overflow-hidden shadow-2xl relative z-10">
-              <img src={quranImg} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-              <div className="absolute bottom-6 left-6 flex items-center gap-2">
-                 <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[10px] font-bold uppercase tracking-widest">Surah {profile?.last_surah_num || '1'}</div>
-              </div>
-            </div>
-
-            <div className="flex-grow space-y-8 w-full relative z-10">
+        {hasStarted && (
+          <section className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
+            <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-[10px] text-primary font-black tracking-[0.3em] uppercase">My Progress</p>
-                <h3 className="text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name || 'Al-Fatihah'}</h3>
+                <span className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.3em]">Latest Journey</span>
+                <h2 className="text-3xl font-display font-bold text-secondary">Continue Reading</h2>
               </div>
+              <button onClick={() => navigate('/quran')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">View All Surahs →</button>
+            </div>
+
+            <div 
+              onClick={() => navigate(`/quran/${profile?.last_surah_num || '1'}`)} 
+              className="premium-card p-10 md:p-14 flex flex-col md:flex-row gap-12 items-center group cursor-pointer active:scale-[0.99] relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               
-              <div className="flex items-center gap-8">
-                 <div className="space-y-1">
-                    <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Progress</p>
-                    <p className="text-lg font-bold text-secondary italic">{hasStarted ? `Part of Chapter ${Math.ceil((profile?.last_surah_num || 1) / 4)}` : "Not Started"}</p>
-                 </div>
-                 <div className="w-px h-10 bg-neutral-100" />
-                 <div className="space-y-1">
-                    <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Last Read</p>
-                    <p className="text-lg font-bold text-secondary">{hasStarted ? "Today" : "Never"}</p>
-                 </div>
+              <div className="w-full md:w-96 aspect-[4/3] rounded-[32px] overflow-hidden shadow-2xl relative z-10">
+                <img src={quranImg} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute bottom-6 left-6 flex items-center gap-2">
+                   <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[10px] font-bold uppercase tracking-widest">Surah {profile?.last_surah_num || '1'}</div>
+                </div>
               </div>
 
-              <button className="bg-primary text-white pl-12 pr-10 py-5 rounded-[22px] flex items-center gap-8 font-bold text-sm shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-95 transition-all group/btn">
-                {hasStarted ? "Resume Wisdom" : "Start Reading"} 
-                <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover/btn:translate-x-2 transition-transform">
-                  <ChevronRight size={18} />
-                </span>
-              </button>
+              <div className="flex-grow space-y-8 w-full relative z-10">
+                <div className="space-y-1">
+                  <p className="text-[10px] text-primary font-black tracking-[0.3em] uppercase">My Progress</p>
+                  <h3 className="text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name || 'Al-Fatihah'}</h3>
+                </div>
+                
+                <div className="flex items-center gap-8">
+                   <div className="space-y-1">
+                      <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Progress</p>
+                      <p className="text-lg font-bold text-secondary italic">Part of Chapter {Math.ceil((profile?.last_surah_num || 1) / 4)}</p>
+                   </div>
+                   <div className="w-px h-10 bg-neutral-100" />
+                   <div className="space-y-1">
+                      <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Last Read</p>
+                      <p className="text-lg font-bold text-secondary">Today</p>
+                   </div>
+                </div>
+
+                <button className="bg-primary text-white pl-12 pr-10 py-5 rounded-[22px] flex items-center gap-8 font-bold text-sm shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-95 transition-all group/btn">
+                  Resume Wisdom 
+                  <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover/btn:translate-x-2 transition-transform">
+                    <ChevronRight size={18} />
+                  </span>
+                </button>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* --- EXPERIENCE GRID: QUEST + BOOKMARKS --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

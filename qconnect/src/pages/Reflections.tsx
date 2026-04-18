@@ -126,15 +126,19 @@ const Reflections: React.FC = () => {
             </div>
 
             <div className="space-y-8">
-              {/* Verse Context (Translation area) */}
+              {/* Verse Context (Enriched data from ReflectionHistory) */}
               <div className="bg-neutral-50/50 rounded-[32px] p-8 border border-neutral-100/50 relative overflow-hidden">
-                 <div className="absolute top-0 right-0 p-4 opacity-[0.05] w-24 h-24 flex items-center justify-center grayscale">
-                    <img src={logoOfficial} alt="" className="w-full h-full object-contain" />
-                  </div>
                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Original Context</p>
-                 <p className="text-md text-secondary leading-relaxed font-light italic relative z-10">
-                    Viewing the divine wisdom behind Verse {selectedRef.verse_key}...
-                 </p>
+                 <div className="space-y-6">
+                    <p dir="rtl" className="font-arabic text-3xl text-right text-secondary leading-relaxed">
+                       {selectedRef.arabic}
+                    </p>
+                    <div className="border-l-2 border-primary/20 pl-4">
+                      <p className="text-sm text-neutral-500 italic leading-relaxed">
+                         "{selectedRef.translation?.replace(/<[^>]*>?/gm, '')}"
+                      </p>
+                    </div>
+                 </div>
               </div>
 
               {/* Editable Reflection Area */}
