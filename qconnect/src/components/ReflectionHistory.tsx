@@ -21,17 +21,18 @@ const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTr
       
       const enrichedData = await Promise.all((data || []).map(async (ref) => {
         try {
-          // 1. Fetch Arabic Text (Uthmani)
-          const verseUrl = `https://api.quran.com/api/v4/verses/by_key/${ref.verse_key}?fields=text_uthmani`;
-          const vRes = await fetch(verseUrl).then(r => r.json());
-          const arabicText = vRes.verse?.text_uthmani || "Arabic text unavailable";
+          // 1. Clean the verse key (handle ranges like '94:5-6')
+          const cleanKey = ref.verse_key.split('-')[0];
           
-          // 2. Fetch Translation
-          const tUrl = `https://api.quran.com/api/v4/quran/translations/131?verse_key=${ref.verse_key}`;
-          const tRes = await fetch(tUrl).then(r => r.json());
-          const tText = tRes.translations?.[0]?.text;
+          // 2. Fetch Arabic Text and Translation in one robust call
+          const verseUrl = `https://api.quran.com/api/v4/verses/by_key/${cleanKey}?fields=text_uthmani&translations=131`;
+          const vRes = await fetch(verseUrl).then(r => r.json());
+          
+          const arabicText = vRes.verse?.text_uthmani || "Arabic text unavailable";
+          const tText = vRes.verse?.translations?.[0]?.text || "Translation unavailable";
 
-          const translationText = tText || "Translation unavailable";
+          // 3. Clean translation of HTML tags
+          const translationText = tText.replace(/<[^>]*>?/gm, '');
 
           return {
             ...ref,
