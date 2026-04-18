@@ -2,9 +2,15 @@ const QF_OAUTH_BASE =
   (import.meta.env.VITE_QURAN_OAUTH_BASE as string | undefined) ||
   'https://prelive-oauth2.quran.foundation';
 
-// --- CRITICAL: MATCH THIS EXACTLY WITH YOUR DEVELOPER PORTAL ---
-// If the portal has '.../callback/', use a slash. If it has '.../callback', NO slash.
-const QF_REDIRECT_URI = "https://q-connect.vercel.app/callback";
+// --- DYNAMIC REDIRECT URI (Supports both Localhost and Vercel) ---
+const getDynamicRedirectUri = () => {
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:5173/callback';
+  }
+  return 'https://q-connect.vercel.app/callback';
+};
+
+const QF_REDIRECT_URI = getDynamicRedirectUri();
 
 // In the browser, token exchange must go through the Vite proxy to avoid CORS.
 const QF_TOKEN_BASE =
