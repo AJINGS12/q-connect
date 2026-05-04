@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import DailyNudge from '../components/DailyNudge';
 import { 
-  Search, Menu, X, BookOpen, Award, PenLine, 
+  Search, Menu, X, BookOpen, Award, Heart, 
   Settings, User, ChevronRight, Bell, History,
-  Gamepad2, LogOut, Shield, Mail, Check, BookmarkPlus
+  Gamepad2, LogOut, Shield, Mail, Check, BookmarkPlus, Activity, Users
 } from 'lucide-react';
-import { updateReflection } from '../services/nudgeService';
 import quranImg from '../assets/quran.jpg';
 import logoOfficial from '../assets/logo_official.png';
 
@@ -23,15 +22,10 @@ const Home: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [imgError, setImgError] = useState(false);
 
-  // --- ADDED FOR EDITING ---
-  const [selectedRef, setSelectedRef] = useState<any>(null);
-  const [editText, setEditText] = useState("");
-
   // Quran search states
   const [searchQuery, setSearchQuery] = useState("");
   const [surahList, setSurahList] = useState<any[]>([]);
   const [filteredSurahs, setFilteredSurahs] = useState<any[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
 
   const fetchHomeData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -99,18 +93,6 @@ const Home: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // --- ADDED UPDATE HANDLER ---
-  const handleUpdate = async () => {
-    if (!selectedRef || !editText.trim()) return;
-    setIsSaving(true);
-    const { success } = await updateReflection(selectedRef.id, editText);
-    if (success) {
-      await fetchHomeData();
-      setSelectedRef(null);
-    }
-    setIsSaving(false);
-  };
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -159,7 +141,7 @@ const Home: React.FC = () => {
       {/* --- SIDEBAR MENU --- */}
       <div className={`fixed inset-0 z-[70] transition-opacity duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)} />
-        <div className={`relative w-72 bg-white h-full shadow-2xl p-8 flex flex-col transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className={`relative w-72 bg-white h-full shadow-2xl p-8 flex flex-col overflow-y-auto scrollbar-hide transition-transform duration-300 ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <button onClick={() => setIsMenuOpen(false)} className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-primary transition-colors hover:bg-neutral-50 rounded-full"><X size={20}/></button>
           <div className="flex items-center gap-3 mb-12 mt-4">
              <div className="w-10 h-10 bg-white border border-neutral-100 rounded-xl flex items-center justify-center shadow-sm overflow-hidden p-1">
@@ -173,8 +155,9 @@ const Home: React.FC = () => {
               { icon: <Search size={20}/>, label: "Wisdom Search", path: "/search" },
               { icon: <BookmarkPlus size={20}/>, label: "My Bookmarks", path: "/bookmarks" },
               { icon: <Gamepad2 size={20}/>, label: "Knowledge Quest", path: "/quest" },
-              { icon: <History size={20}/>, label: "My Reflections", path: "/reflections" },
-              { icon: <Award size={20}/>, label: "Badges", path: "/badges" },
+              { icon: <Activity size={20}/>, label: "Spiritual Insights", path: "/insights" },
+              { icon: <Users size={20}/>, label: "Social Cycle", path: "/social" },
+              { icon: <Heart size={20}/>, label: "My Favorites", path: "/reflections" },
               { icon: <Settings size={20}/>, label: "Settings", path: "/settings" },
             ].map((item) => (
               <button 
@@ -425,9 +408,9 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-black text-neutral-300 uppercase tracking-[0.3em]">Spiritual Archive</span>
-              <h2 className="text-3xl font-display font-bold text-secondary">Recent Reflections</h2>
+              <h2 className="text-3xl font-display font-bold text-secondary">My Favorites</h2>
             </div>
-            <button onClick={() => navigate('/reflections')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">Open Journal →</button>
+            <button onClick={() => navigate('/reflections')} className="text-[10px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">View All →</button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -435,12 +418,12 @@ const Home: React.FC = () => {
               <div 
                 key={ref.id} 
                 onClick={() => {
-                  setSelectedRef(ref);
-                  setEditText(ref.reflection_text);
+                  const surahNum = ref.verse_key.split(':')[0];
+                  navigate(`/quran/${surahNum}`);
                 }}
                 className="bg-white p-10 rounded-premium-card shadow-sm border border-neutral-100 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5 transition-all group flex flex-col min-h-[360px] cursor-pointer active:scale-95 relative overflow-hidden"
               >
-                <div className="absolute bottom-0 right-0 text-primary/5 p-4 group-hover:scale-110 transition-transform"><PenLine size={80} /></div>
+                <div className="absolute bottom-0 right-0 text-primary/5 p-4 group-hover:scale-110 transition-transform"><Heart size={80} /></div>
                 
                 <div className="flex justify-between items-start mb-10 relative z-10">
                   <div className="bg-primary/5 px-3 py-1.5 rounded-lg">
@@ -453,63 +436,26 @@ const Home: React.FC = () => {
                 <div className="space-y-4 relative z-10">
                   <h4 className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.3em]">Verse {ref.verse_key}</h4>
                   <p className="text-xl text-secondary italic font-light leading-relaxed line-clamp-4 group-hover:text-primary transition-colors">
-                    "{ref.reflection_text}"
+                    "{ref.translation_text || ref.reflection_text}"
                   </p>
                 </div>
 
                 <div className="mt-auto pt-8 border-t border-neutral-50 flex items-center justify-between relative z-10">
-                   <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Edit Entry</span>
+                   <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Read Chapter</span>
                    <ChevronRight size={14} className="text-neutral-200 group-hover:text-primary transition-colors" />
                 </div>
               </div>
             )) : (
               <div className="md:col-span-3 py-20 bg-white rounded-premium-card border border-neutral-100/50 flex flex-col items-center justify-center text-center">
-                 <div className="w-16 h-16 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-200 mb-4"><History size={32}/></div>
-                 <h3 className="text-lg font-bold text-secondary">No reflections yet</h3>
-                 <p className="text-sm text-neutral-400 mt-2">Start reading to capture your spiritual insights.</p>
+                 <div className="w-16 h-16 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-200 mb-4"><Heart size={32}/></div>
+                 <h3 className="text-lg font-bold text-secondary">No My Favorites yet</h3>
+                 <p className="text-sm text-neutral-400 mt-2">Favorite a daily nudge to add it to your collection.</p>
               </div>
             )}
           </div>
         </section>
 
-        {/* --- MODAL FOR EDITING --- */}
-        {selectedRef && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-md animate-in fade-in duration-500" onClick={() => setSelectedRef(null)} />
-            <div className="relative bg-white rounded-premium-card p-10 max-w-xl w-full shadow-2xl animate-in zoom-in-95 duration-300">
-              <div className="flex justify-between items-center mb-10">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Reviewing Entry</span>
-                  <h3 className="text-3xl font-display font-bold text-primary italic">Verse {selectedRef.verse_key}</h3>
-                </div>
-                <button onClick={() => setSelectedRef(null)} className="w-10 h-10 flex items-center justify-center hover:bg-neutral-50 rounded-full transition-colors"><X size={20} className="text-neutral-300" /></button>
-              </div>
-              
-              <textarea 
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                className="w-full h-56 p-8 bg-neutral-50/50 rounded-[32px] border-none focus:ring-4 focus:ring-primary/5 text-lg text-secondary italic leading-relaxed transition-all resize-none mb-10 placeholder:text-neutral-300"
-                placeholder="What did you learn from this verse?"
-              />
-              
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setSelectedRef(null)}
-                  className="px-10 py-5 rounded-2xl font-bold text-sm text-neutral-400 hover:bg-neutral-50 transition-colors"
-                >
-                  Discard
-                </button>
-                <button 
-                  onClick={handleUpdate}
-                  disabled={isSaving || editText === selectedRef.reflection_text}
-                  className="flex-grow bg-primary text-white py-5 rounded-[22px] font-bold shadow-xl shadow-primary/20 flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {isSaving ? "Syncing..." : <><Check size={18}/> Update Journal</>}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+
       </main>
 
       <footer className="mt-auto py-20 border-t border-neutral-100 px-6 md:px-10 bg-white">

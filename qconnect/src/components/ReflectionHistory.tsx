@@ -4,11 +4,10 @@ import type { Reflection } from '../services/nudgeService';
 import { Calendar, Quote, ChevronRight, History, Edit3, Loader2 } from 'lucide-react';
 
 interface ReflectionHistoryProps {
-  onEdit?: (reflection: any) => void;
   refreshTrigger?: number; // Add this prop to trigger refreshes
 }
 
-const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTrigger }) => {
+const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ refreshTrigger }) => {
   const [reflections, setReflections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -82,8 +81,8 @@ const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTr
     return (
       <div className="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-neutral-100 px-10">
         <History className="mx-auto mb-4 text-neutral-200" size={48} />
-        <p className="text-secondary font-display text-xl font-bold">No Reflections Yet</p>
-        <p className="text-neutral-400 text-sm mt-2 max-w-xs mx-auto">Your spiritual journey starts here. Reflect on a verse to begin your journal.</p>
+        <p className="text-secondary font-display text-xl font-bold">No Favorites Yet</p>
+        <p className="text-neutral-400 text-sm mt-2 max-w-xs mx-auto">Favorite a daily nudge to build your collection of spiritual wisdom.</p>
       </div>
     );
   }
@@ -93,8 +92,7 @@ const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTr
       {reflections.map((item) => (
         <div 
           key={item.id} 
-          onClick={() => onEdit?.(item)}
-          className="group bg-white rounded-[40px] border border-neutral-100 overflow-hidden hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-700 cursor-pointer active:scale-[0.99]"
+          className="group bg-white rounded-[40px] border border-neutral-100 overflow-hidden hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-700"
         >
           {/* HEADER & SOURCE WISDOM */}
           <div className="bg-[#00695C]/5 p-8 md:p-10 border-b border-neutral-50">
@@ -123,32 +121,21 @@ const ReflectionHistory: React.FC<ReflectionHistoryProps> = ({ onEdit, refreshTr
             </div>
           </div>
 
-          {/* USER CONTENT */}
-          <div className="p-8 md:p-10 bg-white relative overflow-hidden">
-            <Quote className="absolute -top-4 -right-4 text-neutral-50/50" size={120} />
-            
-            <div className="flex items-center gap-2 mb-6 text-[#00695C]">
-               <div className="w-1.5 h-1.5 rounded-full bg-[#00695C]" />
-               <span className="text-[10px] font-black uppercase tracking-[0.3em]">Personal Reflection</span>
-            </div>
+          {/* USER CONTENT (Only show if there was an actual old reflection) */}
+          {item.reflection_text && item.reflection_text !== 'Favorite' && (
+            <div className="p-8 md:p-10 bg-white relative overflow-hidden">
+              <Quote className="absolute -top-4 -right-4 text-neutral-50/50" size={120} />
+              
+              <div className="flex items-center gap-2 mb-6 text-[#00695C]">
+                 <div className="w-1.5 h-1.5 rounded-full bg-[#00695C]" />
+                 <span className="text-[10px] font-black uppercase tracking-[0.3em]">Personal Reflection</span>
+              </div>
 
-            <p className="text-secondary text-xl leading-relaxed font-medium italic relative z-10">
-              "{item.reflection_text}"
-            </p>
-            
-            <div className="mt-10 pt-8 border-t border-neutral-50 flex justify-between items-center">
-               <div className="flex items-center gap-3 text-neutral-300 group-hover:text-[#00695C] transition-all duration-300">
-                 <div className="w-8 h-8 rounded-lg bg-neutral-50 group-hover:bg-[#00695C]/10 flex items-center justify-center transition-colors">
-                    <Edit3 size={14} />
-                 </div>
-                 <span className="text-[10px] font-bold uppercase tracking-widest">Update your thoughts</span>
-               </div>
-               <div className="flex items-center gap-2 text-neutral-200 group-hover:text-[#00695C] group-hover:translate-x-1 transition-all">
-                  <span className="text-[10px] font-black uppercase">Review</span>
-                  <ChevronRight size={18} />
-               </div>
+              <p className="text-secondary text-xl leading-relaxed font-medium italic relative z-10">
+                "{item.reflection_text}"
+              </p>
             </div>
-          </div>
+          )}
         </div>
       ))}
     </div>

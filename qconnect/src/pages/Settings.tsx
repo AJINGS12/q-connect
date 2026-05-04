@@ -4,18 +4,32 @@ import { supabase } from '../lib/supabaseClient';
 import { startQfLogin, getQfAccessToken, clearQfAccessToken } from '../services/qfOAuth';
 import { 
   ChevronLeft, User, Bell,
-  Trash2, LogOut, Moon, Globe, AlertTriangle, BookMarked, Link, Unlink
+  Trash2, LogOut, Moon, Globe, AlertTriangle, BookMarked, Link, Unlink,
+  Cloud, Sparkles, Compass, Sprout, Zap, Anchor, Sun, Shield, Leaf, Heart
 } from 'lucide-react';
+
+const themesList = [
+  { id: 'patience', label: 'Patience', icon: <Cloud size={20} /> },
+  { id: 'gratitude', label: 'Gratitude', icon: <Sparkles size={20} /> },
+  { id: 'wisdom', label: 'Wisdom', icon: <Compass size={20} /> },
+  { id: 'peace', label: 'Peace', icon: <Sprout size={20} /> },
+  { id: 'strength', label: 'Strength', icon: <Zap size={20} /> },
+  { id: 'guidance', label: 'Guidance', icon: <Anchor size={20} /> },
+  { id: 'hope', label: 'Hope', icon: <Sun size={20} /> },
+  { id: 'protection', label: 'Protection', icon: <Shield size={20} /> },
+  { id: 'reflection', label: 'Reflection', icon: <Moon size={20} /> },
+  { id: 'growth', label: 'Growth', icon: <Leaf size={20} /> },
+];
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
   const [qfConnected, setQfConnected] = useState(!!getQfAccessToken());
 
   const handleConnectQf = () => {
-    const redirectUri = `${window.location.origin}/callback`;
-    startQfLogin(redirectUri);
+    startQfLogin();
   };
 
   const handleDisconnectQf = () => {
@@ -55,32 +69,37 @@ const Settings: React.FC = () => {
     }
   };
 
+  const handleUpdateTheme = async (themeId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('user_profiles')
+        .update({ themes: [themeId] })
+        .eq('id', user.id);
+      setProfile({ ...profile, themes: [themeId] });
+      setShowThemeModal(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bg-soft font-body text-secondary pb-32 transition-all duration-700">
       {/* --- HEADER --- */}
-      <nav className="glass-panel sticky top-0 z-50 py-6 px-8 border-none bg-white/70">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+        <div className="max-w-2xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
           <button 
             onClick={() => navigate('/home')}
-            className="flex items-center gap-3 text-neutral-400 hover:text-primary transition-all group"
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-100 hover:border-primary/30 text-primary shadow-sm transition-all active:scale-95 shrink-0"
           >
-            <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-100 group-hover:border-primary/30 shadow-sm transition-all">
-               <ChevronLeft size={18} className="text-primary" />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:translate-x-1 transition-transform">Back to Overview</span>
+            <ChevronLeft size={18} />
           </button>
-          
-          <div className="flex items-center gap-2">
-             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                <Globe size={16} />
-             </div>
-             <h1 className="font-display text-sm font-bold text-secondary uppercase tracking-widest">Preferences</h1>
+          <div>
+            <p className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] leading-none">Account</p>
+            <h1 className="text-base font-display font-black tracking-tight text-neutral-800 leading-tight">Preferences</h1>
           </div>
-          <div className="w-24" />
         </div>
       </nav>
 
-      <main className="max-w-2xl mx-auto px-6 pt-16 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <main className="max-w-2xl mx-auto px-4 md:px-6 pt-6 space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
         
         {/* --- PROFILE SUMMARY --- */}
         <section className="premium-card p-10 flex items-center gap-8 relative overflow-hidden group">
@@ -105,6 +124,28 @@ const Settings: React.FC = () => {
         </section>
 
         {/* --- SETTINGS GROUPS --- */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-4">
+             <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Spiritual Settings</span>
+          </div>
+          <div className="premium-card overflow-hidden p-2">
+              <button onClick={() => setShowThemeModal(true)} className="w-full flex items-center justify-between p-8 hover:bg-neutral-50/50 transition-all rounded-[28px] group text-left">
+                <div className="flex items-center gap-6">
+                  <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
+                    <Heart size={18} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-secondary group-hover:text-primary transition-colors">Core Intention</p>
+                    <p className="text-xs text-neutral-400 font-light mt-0.5 capitalize">Current: {profile?.themes?.[0] || 'None'}</p>
+                  </div>
+                </div>
+                <div className="text-neutral-200 group-hover:text-primary transition-all">
+                   <ChevronLeft size={16} className="rotate-180" />
+                </div>
+              </button>
+          </div>
+        </div>
+
         <div className="space-y-6">
           <div className="flex items-center justify-between px-4">
              <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Environmental Settings</span>
@@ -235,6 +276,52 @@ const Settings: React.FC = () => {
                 </button>
                 <button 
                   onClick={() => setShowDeleteConfirm(false)}
+                  className="w-full text-neutral-400 py-3 font-bold text-xs uppercase tracking-widest hover:text-secondary transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- THEME MODAL --- */}
+        {showThemeModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-md animate-in fade-in duration-500" onClick={() => setShowThemeModal(false)} />
+            <div className="relative bg-white rounded-premium-card p-10 max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[80vh]">
+              <div className="text-center mb-8 shrink-0">
+                <h3 className="text-3xl font-display font-bold text-secondary mb-2">Select Intention</h3>
+                <p className="text-neutral-400 text-sm">Choose a theme to receive daily contextual nudges.</p>
+              </div>
+              
+              <div className="overflow-y-auto pr-2 pb-4 flex-grow">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {themesList.map((t) => {
+                    const isActive = profile?.themes?.[0] === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => handleUpdateTheme(t.id)}
+                        className={`p-6 rounded-[24px] flex flex-col items-center justify-center gap-3 border-2 transition-all duration-300 ${
+                          isActive 
+                          ? 'border-primary bg-primary text-white shadow-xl scale-105' 
+                          : 'border-white bg-neutral-50 hover:border-neutral-100 hover:bg-white'
+                        }`}
+                      >
+                        <div className={isActive ? 'text-white' : 'text-primary'}>
+                          {t.icon}
+                        </div>
+                        <span className="text-[13px] font-bold tracking-tight">{t.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-neutral-100 shrink-0">
+                <button 
+                  onClick={() => setShowThemeModal(false)}
                   className="w-full text-neutral-400 py-3 font-bold text-xs uppercase tracking-widest hover:text-secondary transition-colors"
                 >
                   Cancel

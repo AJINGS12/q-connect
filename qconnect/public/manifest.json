@@ -1,0 +1,40 @@
+{
+  "name": "QConnect - Your Daily Quranic Companion",
+  "short_name": "QConnect",
+  "description": "Embed Quranic wisdom into your daily rhythm through contextual nudges, reflection journals, and gamified knowledge quests.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFDFD",
+  "theme_color": "#00695C",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "lifestyle", "religion"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Read Quran",
+      "url": "/quran",
+      "description": "Open the Quran reader"
+    },
+    {
+      "name": "Knowledge Quest",
+      "url": "/quest",
+      "description": "Test your Quranic knowledge"
+    }
+  ]
+}

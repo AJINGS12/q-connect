@@ -56,16 +56,20 @@ const MyBookmarks: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-bg-soft pb-12 font-body transition-all duration-700">
       {/* Header */}
-      <nav className="glass-panel sticky top-0 z-50 py-6 px-8 border-none bg-white/70">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <button 
-            onClick={() => navigate('/home')}
-            className="flex items-center text-neutral-400 hover:text-primary transition-all group shrink-0"
-          >
-            <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-100 group-hover:border-primary/30 shadow-sm transition-all">
-               <ChevronLeft size={18} className="text-primary" />
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate('/home')}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-100 hover:border-primary/30 text-primary shadow-sm transition-all active:scale-95 shrink-0"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div>
+              <p className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] leading-none">Library</p>
+              <h1 className="text-base font-display font-black tracking-tight text-neutral-800 leading-tight">My Bookmarks</h1>
             </div>
-          </button>
+          </div>
 
           <div className="flex items-center gap-2">
             {isConnected ? (
@@ -83,11 +87,11 @@ const MyBookmarks: React.FC = () => {
         </div>
       </nav>
 
-      <main className="flex-grow max-w-3xl mx-auto px-6 pt-16 w-full">
-        <header className="mb-16 space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <main className="flex-grow max-w-3xl mx-auto px-4 md:px-6 pt-6 w-full">
+        <header className="mb-8 md:mb-16 space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Synced via Quran.com</span>
-          <h2 className="text-5xl font-display font-bold text-secondary tracking-tight italic">Saved Verses</h2>
-          <p className="text-neutral-400 font-light italic leading-relaxed max-w-lg text-lg">
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-secondary tracking-tight italic">Saved Verses</h2>
+          <p className="text-neutral-400 font-light italic leading-relaxed max-w-lg text-sm md:text-lg">
             Your sacred collection, preserved across every device you use.
           </p>
         </header>

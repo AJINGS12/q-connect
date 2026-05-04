@@ -171,6 +171,76 @@ export const saveReflection = async (
   }
 };
 
+// --- FAVORITES: TOGGLE FAVORITE NUDGE ---
+export const toggleFavoriteNudge = async (
+  verseKey: string,
+  arabicText?: string,
+  translationText?: string
+): Promise<{ success: boolean; isFavorited?: boolean; error?: string }> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'User not authenticated' };
+
+    // Check if it exists
+    const { data: existing } = await supabase
+      .from('reflections')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('verse_key', verseKey)
+      .maybeSingle();
+
+    if (existing) {
+      // Remove it
+      const { error } = await supabase
+        .from('reflections')
+        .delete()
+        .eq('id', existing.id);
+      
+      if (error) throw error;
+      return { success: true, isFavorited: false };
+    } else {
+      // Add it
+      const insertPayload: any = {
+        user_id: user.id,
+        verse_key: verseKey,
+        reflection_text: 'Favorite' // Use a default text since we repurposed this table
+      };
+      if (arabicText) insertPayload.arabic_text = arabicText;
+      if (translationText) insertPayload.translation_text = translationText;
+
+      const { error } = await supabase
+        .from('reflections')
+        .insert(insertPayload);
+      
+      if (error) throw error;
+      return { success: true, isFavorited: true };
+    }
+  } catch (error: any) {
+    console.error('Error in toggleFavoriteNudge:', error);
+    return { success: false, error: error.message || 'Failed to toggle favorite' };
+  }
+};
+
+// --- FAVORITES: CHECK STATUS ---
+export const checkFavoriteStatus = async (verseKey: string): Promise<boolean> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return false;
+
+    const { data } = await supabase
+      .from('reflections')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('verse_key', verseKey)
+      .maybeSingle();
+
+    return !!data;
+  } catch (error) {
+    console.error('Error in checkFavoriteStatus:', error);
+    return false;
+  }
+};
+
 // --- REFLECTIONS: EXPLICIT UPDATE BY ID ---
 export const updateReflection = async (
   id: number, 

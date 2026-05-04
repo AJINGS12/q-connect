@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
-import Badges from './pages/Badges';
 
 // Page Imports
 import LandingPage from './pages/LandingPage';
@@ -18,6 +17,10 @@ import MyBookmarks from './pages/MyBookmarks';
 import WisdomSearch from './pages/WisdomSearch';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import InsightsPage from './pages/Insights';
+import SocialGroups from './pages/SocialGroups';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
+
 // This helper component connects the URL ID to your SurahView
 const SurahReaderWrapper = () => {
   const { surahId } = useParams();
@@ -84,7 +87,6 @@ function App() {
         
         {/* Protected Routes - require session AND onboarding */}
         <Route path="/home" element={session ? (isOnboarded ? <Home /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
-        <Route path="/badges" element={session ? (isOnboarded ? <Badges /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
         <Route path="/quest" element={session ? (isOnboarded ? <Quest /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
         <Route path="/quest/play/:levelId" element={session ? (isOnboarded ? <QuestPlay /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
         <Route path="/settings" element={session ? (isOnboarded ? <Settings /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
@@ -93,6 +95,8 @@ function App() {
         <Route path="/quran" element={session ? (isOnboarded ? <Quran /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
         <Route path="/quran/:surahId" element={session ? (isOnboarded ? <SurahReaderWrapper /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
         <Route path="/reflections" element={session ? (isOnboarded ? <Reflections /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/insights" element={session ? (isOnboarded ? <InsightsPage /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/social" element={session ? (isOnboarded ? <SocialGroups /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
 
         {/* Public / Utility */}
         <Route path="/callback" element={<QfCallback />} />
@@ -102,6 +106,7 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <PWAInstallPrompt />
     </Router>
   );
 }

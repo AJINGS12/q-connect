@@ -4,38 +4,10 @@ import {
   Play, Pause, RotateCcw, Volume2, ChevronLeft, 
   Minus, Plus, Award, Globe, Sparkles, BookmarkPlus, Save
 } from 'lucide-react';
-import { unlockBadge } from '../services/nudgeService';
 import { supabase } from '../lib/supabaseClient';
 import { addQuranUserBookmark } from '../services/quranUserApi';
-
-// --- MINI COMPONENT: CELEBRATION TOAST ---
-const BadgeToast = ({ name, onClose }: { name: string, onClose: () => void }) => {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 5000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-
-  return (
-    <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] animate-in fade-in slide-in-from-top-8 duration-700">
-      <div className="bg-white border-2 border-[#00695C] rounded-[24px] p-4 pr-8 shadow-2xl flex items-center gap-4 min-w-[320px]">
-        <div className="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-2xl shadow-inner">
-          📖
-        </div>
-        <div>
-          <p className="text-[10px] font-black text-[#00695C] uppercase tracking-widest mb-0.5 flex items-center gap-1">
-            <Sparkles size={10} /> Achievement Unlocked
-          </p>
-          <h3 className="text-sm font-bold text-neutral-800 uppercase tracking-tight">
-            Master of {name}
-          </h3>
-        </div>
-        <div className="ml-auto opacity-20 text-[#00695C]">
-          <Award size={20} />
-        </div>
-      </div>
-    </div>
-  );
-};
+import { useVerseEngagement } from '../hooks/useVerseEngagement';
+import { activityTrackerEngine } from '../services/activityService';
 
 interface SurahViewProps {
   chapterId: number;
@@ -45,18 +17,43 @@ const toArabicNumber = (num: number) => {
   return num.toString().replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]);
 };
 
-const SURAH_BADGE_TARGETS: Record<number, string> = {
-  1: 'surah_fatihah',
-  2: 'surah_baqarah',
-  18: 'surah_kahf',
-  36: 'surah_yasin',
-  55: 'surah_rahman',
-  56: 'surah_waqiah',
-  67: 'surah_mulk',
-  112: 'surah_ikhlas',
-  113: 'surah_falaq',
-  114: 'surah_nas',
+const VerseItem = ({ 
+  v, 
+  i, 
+  chapterId, 
+  isDone, 
+  isReciting, 
+  fontSize, 
+  toggleVerse, 
+  getFullTransliteration, 
+  externalRef 
+}: any) => {
+  useVerseEngagement({
+    surahNumber: chapterId,
+    ayahNumber: i + 1,
+    externalRef: externalRef
+  });
+
+  const finalTranslation = v.translations?.[0]?.text.replace(/<(?:.|\n)*?>/gm, '') || "Translation not found";
+
+  return (
+    <div ref={externalRef} className={`flex flex-col w-full border-b border-neutral-100 pb-8 md:pb-12 transition-all duration-700 ${isReciting ? 'scale-[1.02] opacity-100' : ''}`}>
+      <div className="flex flex-row-reverse items-start gap-8 mb-8">
+        <p dir="rtl" className={`text-right font-arabic leading-[2.5] flex-grow transition-colors duration-500 ${isReciting ? 'text-[#00695C]' : 'text-secondary'}`} style={{ fontSize: `${fontSize}px` }}>
+          {v.text_uthmani}
+          <button onClick={() => toggleVerse(v.id)} className={`inline-flex items-center justify-center w-14 h-14 rounded-full border-2 font-arabic text-xl mx-4 transition-all ${isDone || isReciting ? 'bg-[#00695C] border-[#00695C] text-white shadow-lg' : 'border-neutral-100 text-neutral-300'}`}>
+            {toArabicNumber(i + 1)}
+          </button>
+        </p>
+      </div>
+      <div className={`w-full text-left pt-6 border-t border-neutral-50 space-y-4 ${isReciting ? 'border-[#00695C]/20' : ''}`}>
+        <p className={`text-sm italic font-medium ${isReciting ? 'text-[#00695C]' : 'text-[#00695C]/70'}`}>{getFullTransliteration(v.words)}</p>
+        <p className="text-base md:text-xl text-neutral-500 font-light leading-relaxed">{finalTranslation}</p>
+      </div>
+    </div>
+  );
 };
+
 
 const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   const navigate = useNavigate();
@@ -66,7 +63,6 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   const [fontSize, setFontSize] = useState(typeof window !== 'undefined' && window.innerWidth < 768 ? 28 : 38);
   const [completedVerses, setCompletedVerses] = useState<number[]>([]);
   
-  const [showBadgeToast, setShowBadgeToast] = useState(false);
   const [hasCompletedSurah, setHasCompletedSurah] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState<number | null>(null);
@@ -210,6 +206,18 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     }
 
     setCurrentAudioIndex(index);
+    // Track Recite event
+    activityTrackerEngine.logEvent({
+       user_id: '',
+       surah_number: chapterId,
+       ayah_number: index + 1,
+       interaction_type: 'listen',
+       timestamp_start: new Date().toISOString(),
+       timestamp_end: new Date(Date.now() + 5000).toISOString(),
+       duration_seconds: 5,
+       visibility_ratio: 1.0,
+       scroll_velocity: 0
+    });
     const audioUrls = getAudioUrls(verse.verse_key);
     const success = await tryPlayAudio(audioUrls, index);
     
@@ -244,7 +252,6 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     if (hasCompletedSurah || !surahInfo) return;
     setHasCompletedSurah(true);
 
-    const targetId = SURAH_BADGE_TARGETS[chapterId];
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
@@ -252,13 +259,6 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
         .from('user_profiles')
         .update({ last_ayah_num: surahInfo.verses_count })
         .eq('id', user.id);
-    }
-
-    if (targetId) {
-      const result = await unlockBadge(targetId);
-      if (result?.success) {
-        setShowBadgeToast(true);
-      }
     }
   };
 
@@ -286,6 +286,19 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
 
   const handleSaveBookmark = async () => {
     const verseNumber = currentAudioIndex !== null ? currentAudioIndex + 1 : Math.max(1, completedVerses.length || 1);
+
+    // Track Bookmark event
+    activityTrackerEngine.logEvent({
+       user_id: '',
+       surah_number: chapterId,
+       ayah_number: verseNumber,
+       interaction_type: 'bookmark',
+       timestamp_start: new Date().toISOString(),
+       timestamp_end: new Date().toISOString(),
+       duration_seconds: 1,
+       visibility_ratio: 1.0,
+       scroll_velocity: 0
+    });
 
     setBookmarkSaving(true);
     setBookmarkStatus(null);
@@ -318,20 +331,29 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-44">
-      {showBadgeToast && <BadgeToast name={surahInfo.name_simple} onClose={() => setShowBadgeToast(false)} />}
+      {/* TOP NAVIGATION */}
+      <nav className="sticky top-0 z-50 w-full bg-[#F8FAFC]/90 backdrop-blur-xl border-b border-neutral-200/60 shadow-sm mb-6">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/quran')} 
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-200 shadow-sm text-[#00695C] hover:border-[#00695C]/30 transition-all active:scale-95 shrink-0"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <div>
+            <p className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] leading-none">The Holy Quran</p>
+            <h1 className="text-base md:text-lg font-display text-[#00695C] tracking-tight font-bold leading-tight">{surahInfo.name_simple}</h1>
+          </div>
+        </div>
+      </nav>
 
-      <div className="text-center pt-16 pb-10 px-6 relative">
-        <button onClick={() => navigate('/quran')} className="absolute left-8 top-16 p-3 bg-white shadow-md rounded-2xl text-primary hover:scale-105 transition-all">
-          <ChevronLeft size={24} />
-        </button>
+      <div className="px-4 md:px-6 max-w-4xl mx-auto">
 
-        <h1 className="text-4xl md:text-6xl font-display text-[#00695C] mt-4 mb-2 tracking-tight italic">{surahInfo.name_simple}</h1>
-        
-        <div className="flex flex-col items-center gap-2 mt-6">
-           <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.2em]">{completedVerses.length} out of {surahInfo.verses_count} Verses Completed</p>
-           <div className="w-48 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-              <div className="h-full bg-[#00695C] transition-all duration-700" style={{ width: `${(completedVerses.length / surahInfo.verses_count) * 100}%` }} />
-           </div>
+        <div className="flex items-center gap-3">
+          <div className="w-32 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+            <div className="h-full bg-[#00695C] transition-all duration-700" style={{ width: `${(completedVerses.length / surahInfo.verses_count) * 100}%` }} />
+          </div>
+          <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-[0.15em]">{completedVerses.length} / {surahInfo.verses_count} verses</p>
         </div>
       </div>
 
@@ -363,26 +385,23 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
         )}
       </div>
 
-      <main className="max-w-4xl mx-auto px-6 space-y-16">
+      <main className="max-w-4xl mx-auto px-4 md:px-6 space-y-10 md:space-y-16">
         {verses.map((v, i) => {
           const isDone = completedVerses.includes(v.id);
           const isReciting = currentAudioIndex === i;
-          const finalTranslation = v.translations?.[0]?.text.replace(/<(?:.|\n)*?>/gm, '') || "Translation not found";
           return (
-            <div key={v.id} ref={verseRefs.current[i]} className={`flex flex-col w-full border-b border-neutral-100 pb-12 transition-all duration-700 ${isReciting ? 'scale-[1.02] opacity-100' : ''}`}>
-              <div className="flex flex-row-reverse items-start gap-8 mb-8">
-                <p dir="rtl" className={`text-right font-arabic leading-[2.5] flex-grow transition-colors duration-500 ${isReciting ? 'text-[#00695C]' : 'text-secondary'}`} style={{ fontSize: `${fontSize}px` }}>
-                  {v.text_uthmani}
-                  <button onClick={() => toggleVerse(v.id)} className={`inline-flex items-center justify-center w-14 h-14 rounded-full border-2 font-arabic text-xl mx-4 transition-all ${isDone || isReciting ? 'bg-[#00695C] border-[#00695C] text-white shadow-lg' : 'border-neutral-100 text-neutral-300'}`}>
-                    {toArabicNumber(i + 1)}
-                  </button>
-                </p>
-              </div>
-              <div className={`w-full text-left pt-6 border-t border-neutral-50 space-y-4 ${isReciting ? 'border-[#00695C]/20' : ''}`}>
-                <p className={`text-sm italic font-medium ${isReciting ? 'text-[#00695C]' : 'text-[#00695C]/70'}`}>{getFullTransliteration(v.words)}</p>
-                <p className="text-xl text-neutral-500 font-light leading-relaxed">{finalTranslation}</p>
-              </div>
-            </div>
+            <VerseItem
+              key={v.id}
+              v={v}
+              i={i}
+              chapterId={chapterId}
+              isDone={isDone}
+              isReciting={isReciting}
+              fontSize={fontSize}
+              toggleVerse={toggleVerse}
+              getFullTransliteration={getFullTransliteration}
+              externalRef={verseRefs.current[i]}
+            />
           );
         })}
       </main>

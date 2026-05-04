@@ -2,24 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { getDailyNudge, getTimeOfDay } from '../services/nudgeService';
 import type { ThemeVerse } from '../services/nudgeService';
 import ReflectionModal from './ReflectionModal'; 
-import { Sun, Sunset, Moon, PenLine, BookOpen, Loader2 } from 'lucide-react';
+import { Sun, Sunset, Moon, PenLine, BookOpen, Loader2, Heart } from 'lucide-react';
+import { toggleFavoriteNudge, checkFavoriteStatus } from '../services/nudgeService';
 
 interface VerseData {
   verse_key: string;
   text_uthmani: string;
   translations: Array<{ 
-    id: number;
+    id?: number;
     resource_id: number;
     text: string;
   }>;
 }
 
 const DailyNudge: React.FC = () => {
+  console.log('[DailyNudge] Component Mounting - Version: FAVORITES_READY');
   const [nudge, setNudge] = useState<ThemeVerse | null>(null);
   const [verseData, setVerseData] = useState<VerseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeOfDay] = useState(getTimeOfDay());
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+ 
+   // Extract translation text safely - AT THE TOP to avoid any Temporal Dead Zone issues
+   const translation = (() => {
+     try {
+       return verseData?.translations?.[0]?.text?.replace(/<[^>]*>/g, '').trim() ?? "";
+     } catch (e) {
+       return "";
+     }
+   })();
 
   useEffect(() => { 
     loadDailyNudge(); 
@@ -28,46 +40,58 @@ const DailyNudge: React.FC = () => {
   const loadDailyNudge = async () => {
     setLoading(true);
     try {
-      const nudgeData = await getDailyNudge();
-      
-      if (nudgeData) {
-        setNudge(nudgeData);
-        
-        // Clean the verse key (handle ranges like '94:5-6')
-        const cleanKey = nudgeData.verse_key.split('-')[0];
-        
-        console.log('Fetching verse:', cleanKey);
-        
-        // Fetch Arabic text
-        const arabicRes = await fetch(
-          `https://api.quran.com/api/v4/verses/by_key/${cleanKey}?fields=text_uthmani`
-        );
+      const today = new Date().toISOString().split('T')[0];
+      const cacheKey = `daily_nudge_data_${today}`;
+      const cachedData = localStorage.getItem(cacheKey);
 
-        // Fetch translation (85 = M.A.S. Abdel Haleem)
-        const translationRes = await fetch(
-          `https://api.quran.com/api/v4/quran/translations/85?verse_key=${cleanKey}`
-        );
+      let nudgeData;
+      let combinedVerse;
 
-        if (!arabicRes.ok || !translationRes.ok) {
-          throw new Error('API call failed');
+      if (cachedData) {
+        const parsed = JSON.parse(cachedData);
+        nudgeData = parsed.nudge;
+        combinedVerse = parsed.verse;
+        console.log('Using cached daily nudge data');
+      } else {
+        nudgeData = await getDailyNudge();
+        
+        if (nudgeData) {
+          // Clean the verse key (handle ranges like '94:5-6')
+          const cleanKey = nudgeData.verse_key.split('-')[0];
+          
+          const [arabicRes, translationRes] = await Promise.all([
+            fetch(`https://api.quran.com/api/v4/verses/by_key/${cleanKey}?fields=text_uthmani`),
+            fetch(`https://api.quran.com/api/v4/quran/translations/85?verse_key=${cleanKey}`)
+          ]);
+
+          if (!arabicRes.ok || !translationRes.ok) {
+            throw new Error('API call failed');
+          }
+
+          const arabicData = await arabicRes.json();
+          const translationData = await translationRes.json();
+
+          combinedVerse = {
+            verse_key: cleanKey,
+            text_uthmani: arabicData?.verse?.text_uthmani || "",
+            translations: (translationData?.translations || []).map((t: any) => ({
+              resource_id: t.resource_id,
+              text: t.text
+            }))
+          };
+
+          // Cache for today
+          localStorage.setItem(cacheKey, JSON.stringify({ nudge: nudgeData, verse: combinedVerse }));
         }
+      }
 
-        const arabicData = await arabicRes.json();
-        const translationData = await translationRes.json();
-
-        console.log('Arabic Data:', arabicData);
-        console.log('Translation Data:', translationData);
-
-        // Combine both responses into the expected format
-        const combinedVerse: VerseData = {
-          verse_key: cleanKey,
-          text_uthmani: arabicData.verse.text_uthmani,
-          translations: translationData.translations.map((t: any) => ({
-            resource_id: t.resource_id,
-            text: t.text
-          }))
-        };
+      if (nudgeData && combinedVerse) {
+        setNudge(nudgeData);
         setVerseData(combinedVerse);
+        
+        // Always check favorite status fresh from DB
+        const favorited = await checkFavoriteStatus(nudgeData.verse_key);
+        setIsFavorited(favorited);
       }
     } catch (error) { 
       console.error('Scripture Fetch Error:', error); 
@@ -118,29 +142,32 @@ const DailyNudge: React.FC = () => {
     );
   }
 
-  // Extract translation text
-  const getTranslation = (): string => {
-    if (!verseData.translations || !Array.isArray(verseData.translations)) {
-      console.error('No translations array found');
-      return 'Translation not available';
-    }
 
-    if (verseData.translations.length === 0) {
-      console.error('Translations array is empty');
-      return 'Translation not available';
-    }
 
-    const translationObj = verseData.translations[0];
-    if (!translationObj || !translationObj.text) {
-      console.error('Translation object is malformed:', translationObj);
-      return 'Translation not available';
+  const handleFavorite = async () => {
+    if (!nudge || !verseData || isSaving) return;
+    setIsSaving(true);
+    
+    // Optimistic UI update
+    setIsFavorited(!isFavorited);
+    
+    const result = await toggleFavoriteNudge(
+      nudge.verse_key,
+      verseData.text_uthmani,
+      translation
+    );
+    
+    if (result.success) {
+      setIsFavorited(result.isFavorited || false);
+      // Notify parent to refresh list if needed
+      localStorage.setItem('reflectionsUpdated', Date.now().toString());
+    } else {
+      // Revert on error
+      setIsFavorited(!isFavorited);
     }
-
-    // Remove HTML tags and clean up
-    return translationObj.text.replace(/<[^>]*>/g, '').trim();
+    
+    setIsSaving(false);
   };
-
-  const translation = getTranslation();
 
   return (
     <div className="max-w-4xl mx-auto w-full px-4 mb-10">
@@ -154,7 +181,7 @@ const DailyNudge: React.FC = () => {
             </div>
             <div>
               <p className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.25em] mb-0.5">
-                Daily Reflection
+                Daily Contextual Nudge
               </p>
               <h3 className={`text-sm font-bold ${theme.accent} capitalize`}>
                 {nudge.theme}
@@ -195,32 +222,23 @@ const DailyNudge: React.FC = () => {
             </div>
           )}
 
-          {/* Reflect Button */}
+          {/* Reflect Button -> changed to Favorite */}
           <div className="flex justify-end pt-8 border-t border-neutral-200/30">
             <button 
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center gap-3 bg-[#00695C] hover:bg-[#004D40] text-white px-10 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-teal-900/10 active:scale-95"
+              onClick={handleFavorite}
+              disabled={isSaving}
+              className={`flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 ${
+                isFavorited 
+                  ? 'bg-rose-50 text-rose-500 shadow-rose-100 border border-rose-200' 
+                  : 'bg-[#00695C] hover:bg-[#004D40] text-white shadow-teal-900/10'
+              }`}
             >
-              <PenLine size={16} />
-              Reflect
+              <Heart size={16} fill={isFavorited ? "currentColor" : "none"} />
+              {isFavorited ? 'Saved' : 'Add to Favorites'}
             </button>
           </div>
         </div>
       </div>
-
-      {/* Reflection Modal */}
-      <ReflectionModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        verseKey={nudge.verse_key}
-        verseText={verseData.text_uthmani}
-        translation={translation}
-        onSave={() => {
-          // Set a flag in localStorage to indicate new reflections were saved
-          console.log('Setting reflectionsUpdated flag in localStorage');
-          localStorage.setItem('reflectionsUpdated', Date.now().toString());
-        }}
-      />
     </div>
   );
 };

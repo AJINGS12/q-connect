@@ -7,29 +7,24 @@ const PrivacyPolicy: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-bg-soft font-body text-secondary pb-32 transition-all duration-700">
-      <nav className="glass-panel sticky top-0 z-50 py-6 px-8 border-none bg-white/70">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <button 
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-3 text-neutral-400 hover:text-primary transition-all group"
-          >
-            <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-100 group-hover:border-primary/30 shadow-sm transition-all">
-               <ChevronLeft size={18} className="text-primary" />
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+        <div className="max-w-3xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-100 hover:border-primary/30 text-primary shadow-sm transition-all active:scale-95 shrink-0"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div>
+              <p className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] leading-none">Legal</p>
+              <h1 className="text-base font-display font-black tracking-tight text-neutral-800 leading-tight">Privacy Policy</h1>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:translate-x-1 transition-transform">Back</span>
-          </button>
-          
-          <div className="flex items-center gap-2">
-             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                <ShieldCheck size={16} />
-             </div>
-             <h1 className="font-display text-sm font-bold text-secondary uppercase tracking-widest">Privacy</h1>
           </div>
-          <div className="w-24" />
         </div>
       </nav>
 
-      <main className="max-w-3xl mx-auto px-6 pt-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <main className="max-w-3xl mx-auto px-4 md:px-6 pt-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
         <div className="premium-card p-10 md:p-14 mb-10 text-center">
           <h1 className="text-4xl md:text-5xl font-display font-bold text-secondary italic mb-4">Privacy Policy</h1>
           <p className="text-neutral-400">Effective Date: April 2026</p>
