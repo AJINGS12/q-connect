@@ -1,6 +1,6 @@
 const QF_OAUTH_BASE =
   (import.meta.env.VITE_QURAN_OAUTH_BASE as string | undefined) ||
-  'https://prelive-oauth2.quran.foundation';
+  'https://oauth2.quran.foundation';
 
 // --- DYNAMIC REDIRECT URI (Supports both Localhost and Vercel) ---
 const getDynamicRedirectUri = () => {
@@ -16,8 +16,8 @@ const QF_REDIRECT_URI = getDynamicRedirectUri();
 const QF_TOKEN_BASE =
   typeof window !== 'undefined' ? '/qf-oauth' : QF_OAUTH_BASE;
 
-const QF_CLIENT_ID = import.meta.env.VITE_QURAN_CLIENT_ID as string | undefined;
-const QF_CLIENT_SECRET = import.meta.env.VITE_QURAN_CLIENT_SECRET as string | undefined;
+const QF_CLIENT_ID = (import.meta.env.VITE_QURAN_CLIENT_ID as string | undefined) || '39bc324a-e43d-4666-9b76-ff022d2169c6';
+const QF_CLIENT_SECRET = (import.meta.env.VITE_QURAN_CLIENT_SECRET as string | undefined) || 'GbH8iQ5Gmy8vzWlS.r58zRnlo';
 
 const ACCESS_TOKEN_KEY = 'qf_access_token';
 const REFRESH_TOKEN_KEY = 'qf_refresh_token';

@@ -16,7 +16,7 @@ export default defineConfig({
     proxy: {
       // Proxy OAuth token exchange to avoid CORS in dev
       '/qf-oauth': {
-        target: 'https://prelive-oauth2.quran.foundation',
+        target: 'https://oauth2.quran.foundation',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/qf-oauth/, ''),
         secure: true,

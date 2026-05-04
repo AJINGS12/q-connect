@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/qf-oauth/(.*)",
-      "destination": "https://prelive-oauth2.quran.foundation/$1"
+      "destination": "https://oauth2.quran.foundation/$1"
     },
     {
       "source": "/(.*)",
