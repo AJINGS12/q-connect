@@ -20,6 +20,8 @@ interface Reminder {
 const Reminders: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(
@@ -69,7 +71,7 @@ const Reminders: React.FC = () => {
         .eq('id', id);
       
       if (error) throw error;
-      setReminders(reminders.map(r => r.id === id ? { ...r, is_active: !currentStatus } : r));
+      setReminders(reminders.map((r: Reminder) => r.id === id ? { ...r, is_active: !currentStatus } : r));
     } catch (e) {
       console.error(e);
     }
@@ -83,7 +85,7 @@ const Reminders: React.FC = () => {
         .eq('id', id);
       
       if (error) throw error;
-      setReminders(reminders.filter(r => r.id !== id));
+      setReminders(reminders.filter((r: Reminder) => r.id !== id));
     } catch (e) {
       console.error(e);
     }
@@ -112,7 +114,7 @@ const Reminders: React.FC = () => {
           .single();
 
         if (error) throw error;
-        setReminders(reminders.map(r => r.id === editingId ? data : r));
+        setReminders(reminders.map((r: Reminder) => r.id === editingId ? data : r));
       } else {
         const { data, error } = await supabase
           .from('reminders')
@@ -225,7 +227,7 @@ const Reminders: React.FC = () => {
         )}
 
         {/* Special Friday Card */}
-        {!reminders.some(r => r.surah_id === 18 && r.days.includes('Friday')) && (
+        {!reminders.some((r: Reminder) => r.surah_id === 18 && r.days.includes('Friday')) && (
           <div className="bg-gradient-to-br from-[#00695C] to-[#004D40] rounded-[32px] p-8 text-white shadow-xl shadow-[#00695C]/10 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
               <Sparkles size={80} />
@@ -261,7 +263,7 @@ const Reminders: React.FC = () => {
                 <p className="text-neutral-400 font-medium text-sm">No reminders set yet.<br/>Tap the + button to start.</p>
               </div>
             ) : (
-              reminders.map(reminder => (
+              reminders.map((reminder: Reminder) => (
                 <div key={reminder.id} className="bg-white p-6 rounded-[32px] border border-neutral-100 shadow-sm flex items-center justify-between group">
                   <div className="flex items-center gap-5">
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${reminder.is_active ? 'bg-[#00695C]/10 text-[#00695C]' : 'bg-neutral-50 text-neutral-300'}`}>
