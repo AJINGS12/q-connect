@@ -158,6 +158,7 @@ const Home: React.FC = () => {
               { icon: <Activity size={20}/>, label: "Spiritual Insights", path: "/insights" },
               { icon: <Users size={20}/>, label: "Social Cycle", path: "/social" },
               { icon: <Heart size={20}/>, label: "My Favorites", path: "/reflections" },
+              { icon: <Bell size={20}/>, label: "My Reminders", path: "/reminders" },
               { icon: <Settings size={20}/>, label: "Settings", path: "/settings" },
             ].map((item) => (
               <button 

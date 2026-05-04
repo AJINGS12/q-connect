@@ -84,3 +84,60 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 });
+
+// Push: Handle incoming push notifications
+self.addEventListener('push', (event) => {
+  let data = { 
+    title: 'QConnect Reminder', 
+    body: 'Time for your recitation!',
+    url: '/reminders'
+  };
+
+  try {
+    if (event.data) {
+      data = event.data.json();
+    }
+  } catch (e) {
+    console.error('Error parsing push data:', e);
+  }
+
+  const options = {
+    body: data.body,
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    vibrate: [100, 50, 100],
+    data: {
+      url: data.url || '/reminders'
+    },
+    actions: [
+      { action: 'open', title: 'Open QConnect' }
+    ]
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// Notification Click: Open the app
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  const urlToOpen = event.notification.data.url || '/reminders';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Check if there is already a window open
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url === urlToOpen && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // If no window is open, open a new one
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});

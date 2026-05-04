@@ -19,6 +19,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import InsightsPage from './pages/Insights';
 import SocialGroups from './pages/SocialGroups';
+import Reminders from './pages/Reminders';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 // This helper component connects the URL ID to your SurahView
@@ -97,6 +98,7 @@ function App() {
         <Route path="/reflections" element={session ? (isOnboarded ? <Reflections /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
         <Route path="/insights" element={session ? (isOnboarded ? <InsightsPage /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
         <Route path="/social" element={session ? (isOnboarded ? <SocialGroups /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
+        <Route path="/reminders" element={session ? (isOnboarded ? <Reminders /> : <Navigate to="/onboarding" replace />) : <Navigate to="/" replace />} />
 
         {/* Public / Utility */}
         <Route path="/callback" element={<QfCallback />} />

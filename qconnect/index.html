@@ -38,15 +38,16 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Register Service Worker (Commented out to prevent stale caching during development) -->
-    <!-- <script>
+    <!-- Register Service Worker -->
+    <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
+          navigator.workerRegistered = true;
           navigator.serviceWorker.register('/sw.js')
             .then(reg => console.log('[QConnect] Service Worker registered:', reg.scope))
             .catch(err => console.warn('[QConnect] Service Worker registration failed:', err));
         });
       }
-    </script> -->
+    </script>
   </body>
 </html>
