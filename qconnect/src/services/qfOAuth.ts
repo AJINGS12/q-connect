@@ -41,12 +41,11 @@ export const refreshQfToken = async (): Promise<string | null> => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${btoa(`${QF_CLIENT_ID}:${QF_CLIENT_SECRET}`)}`,
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
-        client_id: QF_CLIENT_ID,
-        client_secret: QF_CLIENT_SECRET,
         scope: 'openid bookmark',
       }),
     });
@@ -91,13 +90,12 @@ export const exchangeQfCodeForToken = async (code: string) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${btoa(`${QF_CLIENT_ID}:${QF_CLIENT_SECRET}`)}`,
     },
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code,
       redirect_uri: QF_REDIRECT_URI,
-      client_id: QF_CLIENT_ID,
-      client_secret: QF_CLIENT_SECRET,
       scope: 'openid bookmark',
     }),
   });
