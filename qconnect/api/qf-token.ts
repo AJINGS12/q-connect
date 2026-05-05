@@ -17,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const CLIENT_SECRET = process.env.QF_CLIENT_SECRET || 
                         process.env.CLIENT_SECRET || 
                         process.env.VITE_QURAN_CLIENT_SECRET || 
-                        'GbH8iQ5Gmy8vzWlS.r58zRnlo';
+                        'GbH8iQ5Gmy8vz2WlS.r58zRnl0';
 
   const REDIRECT_URI = 'https://qconnect-nine.vercel.app/callback';
 
