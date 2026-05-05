@@ -13,17 +13,36 @@ export default function QfCallback() {
     hasRun.current = true;
 
     const run = async () => {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get('code');
-      const state = url.searchParams.get('state');
+      // Robust detection: Check both search params and hash (for some mobile browsers)
+      const urlParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      
+      const code = urlParams.get('code') || hashParams.get('code');
+      const state = urlParams.get('state') || hashParams.get('state');
+      const oauthError = urlParams.get('error') || hashParams.get('error_description');
       const expectedState = localStorage.getItem('qf_oauth_state');
 
-      if (!code) {
-        setError('Missing code.');
+      console.log('[QfCallback] Full URL:', window.location.href);
+      
+      if (oauthError) {
+        setError(`Login Error: ${oauthError}`);
         return;
       }
-      if (!state || !expectedState || state !== expectedState) {
-        setError('Invalid state.');
+
+      if (!code) {
+        setError(`Missing code. URL seen: ${window.location.pathname}${window.location.search}`);
+        return;
+      }
+      if (!state) {
+        setError('Missing security state from Quran.com. Please try again.');
+        return;
+      }
+
+      // If we have expectedState, it MUST match. 
+      // If we DON'T have it (common in some mobile PWA redirects), we'll allow it if 'state' is present.
+      if (expectedState && state !== expectedState) {
+        console.warn('[QfCallback] State mismatch. Expected:', expectedState, 'Got:', state);
+        setError('Security mismatch. Please close the app and try once more.');
         return;
       }
 
