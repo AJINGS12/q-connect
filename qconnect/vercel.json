@@ -1,10 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/qf-oauth/:path*",
-      "destination": "https://oauth2.quran.foundation/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

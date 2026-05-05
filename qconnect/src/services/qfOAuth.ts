@@ -5,19 +5,17 @@ const getDynamicRedirectUri = () => {
   if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:5173/callback';
   }
-  // This MUST match exactly what Basit Minhas whitelisted in his email:
-  return 'https://qconnect-nine.vercel.app/auth/callback';
+  // This MUST match exactly what was whitelisted for production:
+  return 'https://qconnect-nine.vercel.app/callback';
 };
 
 const QF_REDIRECT_URI = getDynamicRedirectUri();
 
-// In the browser, token exchange must go through the Vite proxy to avoid CORS.
-// Connecting DIRECTLY to Quran Foundation to bypass Vercel 403 proxy errors
-const QF_TOKEN_BASE = QF_OAUTH_BASE;
+// --- TOKEN EXCHANGE (Now using our secure Backend API) ---
+const QF_TOKEN_API = '/api/qf-token';
 
-// FORCING PRODUCTION CREDENTIALS (Ignoring stale environment variables)
+// PRODUCTION CLIENT ID (ID is safe to be public, SECRET is now only in backend)
 const QF_CLIENT_ID = '39bc324a-e43d-4666-9b76-ff022d2169c6';
-const QF_CLIENT_SECRET = 'GbH8iQ5Gmy8vzWlS.r58zRnlo';
 
 const ACCESS_TOKEN_KEY = 'qf_access_token';
 const REFRESH_TOKEN_KEY = 'qf_refresh_token';
@@ -31,24 +29,18 @@ export const clearQfAccessToken = () => {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
 
-// Silently refresh the access token using the stored refresh token.
+// Silently refresh the access token using our backend API
 export const refreshQfToken = async (): Promise<string | null> => {
   const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-  if (!refreshToken || !QF_CLIENT_ID || !QF_CLIENT_SECRET) return null;
+  if (!refreshToken) return null;
 
   try {
-    const res = await fetch(`${QF_TOKEN_BASE}/oauth2/token`, {
+    const res = await fetch(QF_TOKEN_API, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${btoa(`${QF_CLIENT_ID}:${QF_CLIENT_SECRET}`)}`,
-      },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-        scope: 'openid bookmark',
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: refreshToken }),
     });
+
     const json = await res.json();
     if (!res.ok || !json?.access_token) {
        clearQfAccessToken();
@@ -64,7 +56,7 @@ export const refreshQfToken = async (): Promise<string | null> => {
 };
 
 export const startQfLogin = () => {
-  if (!QF_CLIENT_ID) throw new Error('Missing VITE_QURAN_CLIENT_ID');
+  if (!QF_CLIENT_ID) throw new Error('Missing QF_CLIENT_ID');
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
 
@@ -82,29 +74,15 @@ export const startQfLogin = () => {
 };
 
 export const exchangeQfCodeForToken = async (code: string) => {
-  if (!QF_CLIENT_ID || !QF_CLIENT_SECRET) {
-    throw new Error('Missing Quran OAuth client credentials');
-  }
-
-  const res = await fetch(`${QF_TOKEN_BASE}/oauth2/token`, {
+  const res = await fetch(QF_TOKEN_API, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${btoa(`${QF_CLIENT_ID}:${QF_CLIENT_SECRET}`)}`,
-    },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: QF_REDIRECT_URI,
-      scope: 'openid bookmark',
-    }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ grant_type: 'authorization_code', code }),
   });
 
   const json = await res.json();
-  console.log('[QF OAuth] Token exchange response status:', res.status);
-  console.log('[QF OAuth] Token exchange response:', JSON.stringify(json));
   if (!res.ok) {
-    console.error('QF token exchange failed', json);
+    console.error('QF token exchange failed via API', json);
     throw new Error(json?.error_description || 'Token exchange failed');
   }
 
@@ -117,4 +95,3 @@ export const exchangeQfCodeForToken = async (code: string) => {
 
   return json;
 };
-
