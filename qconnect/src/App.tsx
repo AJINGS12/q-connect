@@ -102,6 +102,7 @@ function App() {
 
         {/* Public / Utility */}
         <Route path="/callback" element={<QfCallback />} />
+        <Route path="/auth/callback" element={<QfCallback />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
 

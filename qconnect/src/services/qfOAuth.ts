@@ -5,8 +5,8 @@ const getDynamicRedirectUri = () => {
   if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:5173/callback';
   }
-  // This MUST match exactly what is registered in the Quran Foundation Developer Portal
-  return 'https://qconnect-nine.vercel.app/callback';
+  // This MUST match exactly what Basit Minhas whitelisted in his email:
+  return 'https://qconnect-nine.vercel.app/auth/callback';
 };
 
 const QF_REDIRECT_URI = getDynamicRedirectUri();
@@ -67,7 +67,7 @@ export const startQfLogin = () => {
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
 
-  const scope = encodeURIComponent('openid offline_access bookmark user');
+  const scope = encodeURIComponent('openid offline_access bookmarks user');
   const url =
     `${QF_OAUTH_BASE}/oauth2/auth` +
     `?response_type=code` +
@@ -95,7 +95,7 @@ export const exchangeQfCodeForToken = async (code: string) => {
       grant_type: 'authorization_code',
       code,
       redirect_uri: QF_REDIRECT_URI,
-      scope: 'openid offline_access bookmark user',
+      scope: 'openid offline_access bookmarks user',
     }),
   });
 
