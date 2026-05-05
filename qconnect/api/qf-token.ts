@@ -21,8 +21,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const REDIRECT_URI = 'https://qconnect-nine.vercel.app/callback';
 
-  console.log(`[API] OAuth Attempt: ClientID=${CLIENT_ID.substring(0, 8)}... SecretProvided=${!!CLIENT_SECRET}`);
-
   try {
     const params = new URLSearchParams();
     
@@ -35,8 +33,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       params.append('redirect_uri', REDIRECT_URI);
     }
     
-    // Using the whitelisted scope
-    params.append('scope', 'openid bookmark');
+    // Some providers require credentials in the body AND/OR the header
+    params.append('client_id', CLIENT_ID);
+    params.append('client_secret', CLIENT_SECRET);
 
     const response = await fetch('https://oauth2.quran.foundation/oauth2/token', {
       method: 'POST',
@@ -44,18 +43,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Authorization': `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
       },
-      body: params.toString(), // Ensure body is sent as a string
+      body: params.toString(),
     });
 
     const data = await response.json();
     
     if (!response.ok) {
       console.error('[API] Quran.foundation rejected the request:', data);
+      console.log(`[API] Debug Info: Grant=${grant_type || 'auth_code'} ID=${CLIENT_ID.substring(0, 8)}...`);
     }
 
     return res.status(response.status).json(data);
   } catch (error) {
     console.error('[API] Server Error:', error);
-    return res.status(500).json({ error: 'Internal server error during token exchange' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
