@@ -68,7 +68,7 @@ export const startQfLogin = () => {
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
 
-  const scope = encodeURIComponent('openid bookmarks user');
+  const scope = encodeURIComponent('openid bookmark');
   const url =
     `${QF_OAUTH_BASE}/oauth2/auth` +
     `?response_type=code` +
@@ -96,7 +96,7 @@ export const exchangeQfCodeForToken = async (code: string) => {
       grant_type: 'authorization_code',
       code,
       redirect_uri: QF_REDIRECT_URI,
-      scope: 'openid bookmarks user',
+      scope: 'openid bookmark',
     }),
   });
 
