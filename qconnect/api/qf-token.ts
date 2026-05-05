@@ -33,22 +33,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       params.append('redirect_uri', REDIRECT_URI);
     }
     
-    // Switch to client_secret_post (No Authorization header)
-    params.append('client_id', CLIENT_ID);
-    params.append('client_secret', CLIENT_SECRET);
+    // ✅ client_secret_basic — credentials go in Authorization header, NOT body
+    const credentials = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
 
-    console.log("[DEBUG OAuth - POST Method]", {
+    console.log("[DEBUG OAuth - Basic Method]", {
       clientId: CLIENT_ID,
       hasSecret: !!CLIENT_SECRET,
       secretLength: CLIENT_SECRET?.length,
-      grantType: grant_type || 'authorization_code'
+      authHeaderPreview: `Basic ${credentials.substring(0, 10)}...`
     });
 
     const response = await fetch('https://oauth2.quran.foundation/oauth2/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        // Authorization header REMOVED to try client_secret_post method
+        'Authorization': `Basic ${credentials}`,
       },
       body: params.toString(),
     });
