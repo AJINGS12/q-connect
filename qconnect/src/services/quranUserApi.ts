@@ -7,7 +7,9 @@ const QURAN_API_BASE =
   (import.meta.env.VITE_QURAN_API_BASE as string | undefined) ||
   'https://apis.quran.foundation';
 
-const QURAN_USER_API_BASE = `${QURAN_API_BASE}/auth/v1`;
+const QURAN_USER_API_BASE = QURAN_API_BASE.endsWith('/auth/v1') 
+  ? QURAN_API_BASE 
+  : `${QURAN_API_BASE}/auth/v1`;
 
 type QuranApiSuccess<T> = {
   success: boolean;
