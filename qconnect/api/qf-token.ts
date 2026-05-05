@@ -37,11 +37,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     params.append('client_id', CLIENT_ID);
     params.append('client_secret', CLIENT_SECRET);
 
+    const authHeader = `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`;
+
+    console.log("[DEBUG OAuth]", {
+      clientId: CLIENT_ID,
+      hasSecret: !!CLIENT_SECRET,
+      secretLength: CLIENT_SECRET?.length,
+      authHeaderPreview: authHeader?.slice(0, 18), // safe preview
+    });
+
     const response = await fetch('https://oauth2.quran.foundation/oauth2/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
+        'Authorization': authHeader,
       },
       body: params.toString(),
     });
