@@ -1,13 +1,12 @@
-const QF_OAUTH_BASE =
-  (import.meta.env.VITE_QURAN_OAUTH_BASE as string | undefined) ||
-  'https://oauth2.quran.foundation';
+const QF_OAUTH_BASE = 'https://oauth2.quran.foundation';
 
 // --- DYNAMIC REDIRECT URI (Supports both Localhost and Vercel) ---
 const getDynamicRedirectUri = () => {
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     return 'http://localhost:5173/callback';
   }
-  return 'https://q-connect.vercel.app/callback';
+  // This MUST match exactly what is registered in the Quran Foundation Developer Portal
+  return 'https://qconnect-nine.vercel.app/callback';
 };
 
 const QF_REDIRECT_URI = getDynamicRedirectUri();

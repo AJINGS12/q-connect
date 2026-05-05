@@ -354,13 +354,13 @@ const Reminders: React.FC = () => {
               <div className="flex gap-2 p-1.5 bg-neutral-100 rounded-2xl">
                 <button 
                   onClick={() => setReminderType('recurring')}
-                  className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${reminderType === 'recurring' ? 'bg-white text-primary shadow-sm' : 'text-neutral-400'}`}
+                  className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${reminderType === 'recurring' ? 'bg-white text-[#00695C] shadow-sm' : 'text-neutral-400'}`}
                 >
                   Recurring
                 </button>
                 <button 
                   onClick={() => setReminderType('one-time')}
-                  className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${reminderType === 'one-time' ? 'bg-white text-primary shadow-sm' : 'text-neutral-400'}`}
+                  className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${reminderType === 'one-time' ? 'bg-white text-[#00695C] shadow-sm' : 'text-neutral-400'}`}
                 >
                   One-time
                 </button>
@@ -369,7 +369,7 @@ const Reminders: React.FC = () => {
               <div>
                 <label className="block text-[10px] font-black text-[#00695C] uppercase tracking-[0.2em] mb-3">Time</label>
                 <div className="relative">
-                  <Clock className="absolute left-5 top-1/2 -translate-y-1/2 text-[#00695C]" size={20} />
+                  <Clock className="absolute left-5 top-1/2 -translate-y-1/2 text-[#00695C] pointer-events-none" size={20} />
                   <input 
                     type="time" 
                     value={time}
@@ -402,7 +402,7 @@ const Reminders: React.FC = () => {
                 <div>
                   <label className="block text-[10px] font-black text-[#00695C] uppercase tracking-[0.2em] mb-3">Pick Date</label>
                   <div className="relative">
-                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-[#00695C]" size={20} />
+                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-[#00695C] pointer-events-none" size={20} />
                     <input 
                       type="date" 
                       value={date}
