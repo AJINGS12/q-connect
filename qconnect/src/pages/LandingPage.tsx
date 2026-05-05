@@ -5,40 +5,41 @@ import { BookOpen } from 'lucide-react';
 // --- IMAGE IMPORTS ---
 import logoOfficial from '../assets/logo_official.png'; 
 import contextualImg from '../assets/contextual.jpg';
-import journalImg from '../assets/journal.jpg';
-import badgesImg from '../assets/badges.png';
+import socialCycleImg from '../assets/social_cycle.png';
+import insightsImg from '../assets/spiritual_insights.png';
+import remindersImg from '../assets/reminders.png';
 import quranImg from '../assets/quran.jpg';
 import bookmarkSyncImg from '../assets/bookmark_sync.jpg';
 import knowledgeQuestImg from '../assets/knowledge_quest.jpg';
 
 const features = [
   {
-    title: "Contextual Nudges",
-    description: "Beyond Ramadan. QConnect sends timely, theme-based reminders (Morning, Afternoon, Evening) to keep the Quran's wisdom integrated into your daily rhythm.",
+    title: "Daily Contextual Nudges",
+    description: "Beyond Ramadan. QConnect sends timely, theme-based reminders (Gratitude, Patience, Reflection) to keep the Quran's wisdom integrated into your daily rhythm.",
     image: contextualImg,
     bgColor: "bg-[#E0F2F1]" 
   },
   {
-    title: "Micro-Reflection Journal",
-    description: "Don't just read—absorb. After every verse, a gentle prompt asks: 'What does this mean to you today?' Build a living map of your spiritual evolution.",
-    image: journalImg,
+    title: "The Social Cycle",
+    description: "Experience a living board of engagement. See who's active, join circles, and track collective progress with friends in real-time. Accountability meets community.",
+    image: socialCycleImg,
     bgColor: "bg-[#E8F5E9]"
   },
   {
-    title: "Surah-Based Badges",
-    description: "Unlock iconic badges like Fatiha (Guidance) or Ikhlas (Tauhid) by reading and reflecting. Transform your progress into a visual collection of milestones.",
-    image: badgesImg,
+    title: "Spiritual Insights",
+    description: "Understand your depth. Visualize your Quranic journey with advanced analytics across Consistency, Quality, Reflection, and Memorization.",
+    image: insightsImg,
     bgColor: "bg-[#FFF8E1]"
   },
   {
-    title: "Quran.com Bookmark Sync",
-    description: "Connect your Quran.com account with one tap. Every ayah you bookmark in QConnect syncs to Quran.com—and vice versa. Your reading journey, on every device.",
-    image: bookmarkSyncImg,
+    title: "Smart Reminders",
+    description: "Set custom schedules for your favorite Surahs. Never miss the Friday sunnah with one-tap Al-Kahf reminders and automated phone notifications.",
+    image: remindersImg,
     bgColor: "bg-[#E0F2F1]"
   },
   {
     title: "Knowledge Quest",
-    description: "Turn Quranic knowledge into an adventure. Complete daily challenges, answer verse-based quizzes, and earn Quest Coins to unlock rewards. Learning has never felt this alive.",
+    description: "Turn Quranic knowledge into an adventure. Complete daily challenges, answer verse-based quizzes, and earn Quest Coins to unlock rewards.",
     image: knowledgeQuestImg,
     bgColor: "bg-[#FFF3E0]"
   },

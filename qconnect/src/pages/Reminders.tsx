@@ -24,7 +24,7 @@ const Reminders: React.FC = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(
+  const [notificationPermission, setNotificationPermission] = useState<string>(
     typeof Notification !== 'undefined' ? Notification.permission : 'default'
   );
 

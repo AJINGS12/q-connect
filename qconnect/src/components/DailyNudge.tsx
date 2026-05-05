@@ -170,13 +170,13 @@ const DailyNudge: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto w-full px-4 mb-10">
-      <div className={`relative overflow-hidden rounded-[40px] border ${theme.border} ${theme.bg} backdrop-blur-xl p-8 md:p-12 transition-all duration-700 shadow-sm`}>
+    <div className="max-w-4xl mx-auto w-full px-4 mb-6">
+      <div className={`relative overflow-hidden rounded-[40px] border ${theme.border} ${theme.bg} backdrop-blur-xl p-6 md:p-8 transition-all duration-700 shadow-sm`}>
         
         {/* Header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className={`p-2.5 bg-white rounded-2xl shadow-sm ${theme.accent}`}>
+            <div className={`p-2 bg-white rounded-xl shadow-sm ${theme.accent}`}>
               {theme.icon}
             </div>
             <div>
@@ -197,24 +197,24 @@ const DailyNudge: React.FC = () => {
         </div>
 
         {/* Scripture Content */}
-        <div className="space-y-10">
+        <div className="space-y-6">
           {/* Arabic Text */}
           <div className="text-right">
-            <p className="font-arabic text-4xl md:text-5xl leading-[1.8] text-neutral-800 dir-rtl drop-shadow-sm">
+            <p className="font-arabic text-3xl md:text-4xl leading-[1.6] text-neutral-800 dir-rtl drop-shadow-sm">
               {verseData.text_uthmani}
             </p>
           </div>
 
           {/* Translation */}
           <div className="max-w-3xl border-l-2 border-[#00695C]/20 pl-6">
-            <p className="text-xl md:text-2xl text-neutral-600 font-light leading-relaxed italic">
+            <p className="text-lg md:text-xl text-neutral-600 font-light leading-relaxed italic">
               "{translation}"
             </p>
           </div>
 
           {/* Context from nudge database */}
           {nudge.context && (
-            <div className="bg-white/60 rounded-2xl p-6 border border-white/50">
+            <div className="bg-white/40 rounded-2xl p-4 border border-white/30">
               <p className="text-sm text-teal-700 font-medium leading-relaxed flex items-start gap-2">
                 <span className="text-lg">💡</span>
                 <span>{nudge.context}</span>
@@ -222,12 +222,12 @@ const DailyNudge: React.FC = () => {
             </div>
           )}
 
-          {/* Reflect Button -> changed to Favorite */}
-          <div className="flex justify-end pt-8 border-t border-neutral-200/30">
+          {/* Action Area */}
+          <div className="flex justify-end pt-6 border-t border-neutral-200/20">
             <button 
               onClick={handleFavorite}
               disabled={isSaving}
-              className={`flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 ${
+              className={`flex items-center justify-center gap-3 px-8 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95 ${
                 isFavorited 
                   ? 'bg-rose-50 text-rose-500 shadow-rose-100 border border-rose-200' 
                   : 'bg-[#00695C] hover:bg-[#004D40] text-white shadow-teal-900/10'
