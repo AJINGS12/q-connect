@@ -60,13 +60,13 @@ export const startQfLogin = () => {
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
 
-  const scope = encodeURIComponent('openid bookmark');
+  const scope = 'bookmark';
   const url =
     `${QF_OAUTH_BASE}/oauth2/auth` +
     `?response_type=code` +
     `&client_id=${encodeURIComponent(QF_CLIENT_ID)}` +
     `&redirect_uri=${encodeURIComponent(QF_REDIRECT_URI)}` +
-    `&scope=${scope}` +
+    `&scope=${encodeURIComponent(scope)}` +
     `&state=${encodeURIComponent(state)}`;
 
   console.log('[OAuth] Redirecting with fixed URI:', QF_REDIRECT_URI);
