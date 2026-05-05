@@ -5,7 +5,7 @@ import { getQfAccessToken, refreshQfToken } from './qfOAuth';
 // Bookmarks/Collections endpoints: /v1/...
 const QURAN_API_BASE =
   (import.meta.env.VITE_QURAN_API_BASE as string | undefined) ||
-  'https://apis-prelive.quran.foundation';
+  'https://apis.quran.foundation';
 
 const QURAN_USER_API_BASE = `${QURAN_API_BASE}/auth/v1`;
 
