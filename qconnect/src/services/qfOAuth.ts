@@ -12,8 +12,8 @@ const getDynamicRedirectUri = () => {
 const QF_REDIRECT_URI = getDynamicRedirectUri();
 
 // In the browser, token exchange must go through the Vite proxy to avoid CORS.
-const QF_TOKEN_BASE =
-  typeof window !== 'undefined' ? '/qf-oauth' : QF_OAUTH_BASE;
+// Connecting DIRECTLY to Quran Foundation to bypass Vercel 403 proxy errors
+const QF_TOKEN_BASE = QF_OAUTH_BASE;
 
 // FORCING PRODUCTION CREDENTIALS (Ignoring stale environment variables)
 const QF_CLIENT_ID = '39bc324a-e43d-4666-9b76-ff022d2169c6';
