@@ -48,15 +48,13 @@ const LandingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const handleGoogleLogin = async () => {
-    // For mobile stability, we hardcode the production URL if not on localhost
-    const redirectUrl = window.location.hostname === 'localhost' 
-      ? `${window.location.origin}/` 
-      : 'https://q-connect.vercel.app/';
+    // This will dynamically use http://localhost:5173 or https://q-connect.vercel.app
+    const origin = window.location.origin;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: redirectUrl,
+        redirectTo: origin,
         queryParams: {
           prompt: 'select_account',
           access_type: 'offline'
