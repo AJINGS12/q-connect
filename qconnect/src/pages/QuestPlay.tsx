@@ -340,8 +340,7 @@ const QuestPlay: React.FC = () => {
               </button>
             ) : null}
           </div>
-        </div>
-      </main>
+        </main>
     </div>
   );
 };
