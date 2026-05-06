@@ -29,24 +29,61 @@ const Onboarding: React.FC = () => {
   const handleComplete = async () => {
     setLoading(true);
     setErrorMsg(null);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      // 1. Check if profile exists
+      const { data: existing } = await supabase
         .from('user_profiles')
-        .upsert({ 
-          id: user.id, 
-          role: 'student', // Fallback role to prevent DB constraint errors
-          themes: [selectedTheme],
-          updated_at: new Date().toISOString() 
-        });
-      if (!error) {
-        navigate('/home');
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      let error;
+      if (existing) {
+        // 2. Update existing profile
+        const { error: updateError } = await supabase
+          .from('user_profiles')
+          .update({ 
+            themes: [selectedTheme],
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+        error = updateError;
       } else {
-        console.error(error);
-        setErrorMsg(error.message || JSON.stringify(error));
+        // 3. Create new profile
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert({ 
+            id: user.id, 
+            role: 'student', 
+            themes: [selectedTheme],
+            updated_at: new Date().toISOString()
+          });
+        error = insertError;
       }
+
+      if (error) throw error;
+
+      // 4. Verification step: ensure we can read it back
+      const { data: verify } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!verify) {
+        throw new Error("Profile created but not found. Please check your Database RLS policies.");
+      }
+
+      navigate('/home');
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || "Failed to complete setup. Check RLS policies.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
