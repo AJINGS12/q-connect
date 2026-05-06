@@ -18,9 +18,6 @@ const QuestPlay: React.FC = () => {
   const [currentReflectionText, setCurrentReflectionText] = useState('');
   
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false);
-  const [hearts, setHearts] = useState(3);
-  const [hints, setHints] = useState(0);
-  const [showHint, setShowHint] = useState(false);
   const [loading, setLoading] = useState(true);
   const [resultMode, setResultMode] = useState<'success' | 'fail' | null>(null);
   const [questionsFetchError, setQuestionsFetchError] = useState<string | null>(null);
@@ -44,14 +41,7 @@ const QuestPlay: React.FC = () => {
         return;
       }
       
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('quest_hearts, quest_hints')
-        .eq('id', user?.id)
-        .single();
-      
-      setHearts(profile?.quest_hearts || 3);
-      setHints(profile?.quest_hints || 0);
+      // No longer tracking hearts or hints per user request
 
       const { data: qs, error: questionsError } = await supabase
         .from('quest_questions')
@@ -98,10 +88,7 @@ const QuestPlay: React.FC = () => {
           reflection_text: currentReflectionText
         });
         
-        const { data: profile } = await supabase.from('user_profiles').select('quest_coins').eq('id', user.id).single();
-        await supabase.from('user_profiles').update({ 
-          quest_coins: (profile?.quest_coins || 0) + 15 
-        }).eq('id', user.id);
+        // Points for reading/verse are removed. Level points only.
       }
     } catch (err) {
       console.error('Failed to save reflection', err);
@@ -112,7 +99,6 @@ const QuestPlay: React.FC = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setIsAnswerRevealed(false);
-      setShowHint(false);
       setCurrentReflectionText('');
     } else {
       handleSubmit();
@@ -147,27 +133,14 @@ const QuestPlay: React.FC = () => {
 
       await supabase.from('user_profiles').update({ 
         current_quest_level: nextLevel,
-        quest_hearts: 3,
-        quest_coins: (profile?.quest_coins || 0) + 10 // Award 10 coins for level completion
+        quest_coins: (profile?.quest_coins || 0) + 2 // Award 2 points for level completion
       }).eq('id', user?.id);
     } else {
       setResultMode('fail');
-      const newHearts = Math.max(hearts - 1, 0);
-      setHearts(newHearts);
-      const { data: { user } } = await supabase.auth.getUser();
-      await supabase.from('user_profiles').update({ quest_hearts: newHearts }).eq('id', user?.id);
     }
   };
 
-  const useHint = async () => {
-    if (hints > 0 && !showHint) {
-      const { data: { user } } = await supabase.auth.getUser();
-      const newHints = hints - 1;
-      await supabase.from('user_profiles').update({ quest_hints: newHints }).eq('id', user?.id);
-      setHints(newHints);
-      setShowHint(true);
-    }
-  };
+  // Hints removed per user request
 
   if (loading) return <div className="min-h-screen bg-[#FBFBFA] flex items-center justify-center font-display text-[#00695C] animate-pulse">Loading Journey...</div>;
 
@@ -206,7 +179,7 @@ const QuestPlay: React.FC = () => {
         </h2>
         <p className="text-white/60 text-center mb-12 max-w-sm leading-relaxed relative z-10">
           {resultMode === 'success'
-            ? `Excellent reflection and understanding. You earned 10 points 🪙 and unlocked the next step on your path.`
+            ? `Excellent reflection and understanding. You earned 2 points 🪙 and unlocked the next step on your path.`
             : `Some concepts need a bit more review. Try again to deepen your understanding.`}
         </p>
         <button 
@@ -236,16 +209,9 @@ const QuestPlay: React.FC = () => {
               <h1 className="text-base font-display font-black tracking-tight text-neutral-800 leading-tight">Challenge</h1>
             </div>
           </div>
-          <div className="flex items-center gap-4 bg-white px-5 py-2.5 rounded-3xl shadow-sm border border-neutral-100">
-             <div className="flex gap-1">
-                {[...Array(3)].map((_, i) => (
-                  <Heart key={i} size={14} className={i < hearts ? "fill-red-500 text-red-500" : "text-neutral-200"} />
-                ))}
-             </div>
-             <div className="w-px h-4 bg-neutral-100" />
-             <div className="flex items-center gap-1.5 text-[#00695C] font-bold text-xs">
-                <Zap size={14} fill="#00695C" /> {hints}
-             </div>
+          <div className="flex items-center gap-1.5 md:gap-2 px-4 py-2 bg-neutral-50/50 rounded-2xl border border-neutral-100">
+             <Star className="w-4 h-4 text-primary fill-primary" />
+             <span className="text-xs font-black text-secondary">{profile?.quest_coins || 0}</span>
           </div>
         </div>
       </nav>
@@ -269,7 +235,7 @@ const QuestPlay: React.FC = () => {
            <div className="mb-6 md:mb-10">
              {isReflection && (
                 <span className="inline-block px-3 py-1 mb-4 bg-primary/10 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest">
-                  Deep Reflection (+15 pts)
+                  Deep Reflection
                 </span>
              )}
              <h2 className="text-2xl md:text-3xl font-display font-bold text-secondary leading-relaxed whitespace-pre-wrap">
@@ -351,25 +317,7 @@ const QuestPlay: React.FC = () => {
 
         {/* --- BOTTOM ACTIONS --- */}
         <div className="mt-12 space-y-4">
-          {showHint && !isAnswerRevealed && (
-            <div className="bg-[#00695C]/5 border border-[#00695C]/10 p-5 rounded-3xl animate-in slide-in-from-bottom-4">
-              <p className="text-sm text-[#00695C] leading-relaxed font-medium">
-                <Zap size={14} className="inline mr-2 fill-[#00695C]" />
-                {currentQ.hint_clue}
-              </p>
-            </div>
-          )}
-
-          <div className="flex gap-4">
-            {!isAnswerRevealed && !isReflection && (
-              <button 
-                onClick={useHint}
-                disabled={hints <= 0 || showHint}
-                className="w-16 h-16 bg-white border border-neutral-200 rounded-[24px] flex items-center justify-center text-[#00695C] shadow-sm disabled:opacity-30 active:scale-95 transition-all hover:bg-neutral-50"
-              >
-                <Zap size={24} />
-              </button>
-            )}
+            {/* Hints and help removed */}
             
             {isReflection && !isAnswerRevealed ? (
               <button 

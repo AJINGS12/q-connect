@@ -97,7 +97,91 @@ const RadarChart = ({ metrics }: { metrics: EngagementMetrics | null }) => {
     </div>
   );
 };
+const getSpiritualState = (score: number) => {
+  if (score < 200) return { title: 'The Seeker', arabic: 'Al-Bāḥith', arabicNative: 'الباحث', color: 'text-blue-400' };
+  if (score < 400) return { title: 'The Beginner', arabic: 'Al-Mubtadi\'', arabicNative: 'المبتديء', color: 'text-teal-400' };
+  if (score < 600) return { title: 'The Mindful', arabic: 'Al-Mutayaqqiz', arabicNative: 'المتيقظ', color: 'text-emerald-400' };
+  if (score < 800) return { title: 'The Contemplative', arabic: 'Al-Mutadabbir', arabicNative: 'المتدبر', color: 'text-amber-400' };
+  return { title: 'The Devoted', arabic: 'Al-Muta\'abbid', arabicNative: 'المتعبد', color: 'text-yellow-400' };
+};
 
+const WeeklyWrapCard = ({ events }: { events: UserActivity[] }) => {
+  if (!events || events.length === 0) return null;
+
+  // Find most revisited verse
+  const verseCounts: Record<string, number> = {};
+  events.forEach(ev => {
+    const key = `${ev.surah_number}:${ev.ayah_number}`;
+    verseCounts[key] = (verseCounts[key] || 0) + 1;
+  });
+
+  let topVerse = '';
+  let maxCount = 0;
+  Object.entries(verseCounts).forEach(([key, count]) => {
+    if (count > maxCount) {
+      maxCount = count;
+      topVerse = key;
+    }
+  });
+
+  // Most revisited surah
+  const surahCounts: Record<number, number> = {};
+  events.forEach(ev => {
+    surahCounts[ev.surah_number] = (surahCounts[ev.surah_number] || 0) + 1;
+  });
+
+  let topSurah = 1;
+  let maxSurahCount = 0;
+  Object.entries(surahCounts).forEach(([num, count]) => {
+    if (count > maxSurahCount) {
+      maxSurahCount = count;
+      topSurah = Number(num);
+    }
+  });
+
+  const isFriday = new Date().getDay() === 5;
+  if (!isFriday && maxCount < 3) return null; // Only show if Jumu'ah or high engagement
+
+  return (
+    <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+       <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12 transition-transform hover:scale-110 duration-700">
+          <Heart size={180} fill="white" />
+       </div>
+       
+       <div className="relative z-10 space-y-8">
+          <div className="flex items-center justify-between">
+             <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Jumu'ah Wrap</span>
+             </div>
+             <Sparkles className="text-amber-400" size={24} />
+          </div>
+
+          <div className="space-y-2">
+             <h3 className="text-4xl font-display font-black tracking-tight">Your Weekly <span className="text-indigo-400">Reflection</span></h3>
+             <p className="text-indigo-200/60 font-medium">This week, one message truly resonated with you.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+             <div className="bg-white/5 rounded-[32px] p-8 border border-white/5 hover:bg-white/10 transition-all">
+                <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-4">Most Revisited</p>
+                <h4 className="text-2xl font-display font-bold mb-2">Surah {topSurah}, Verse {topVerse.split(':')[1]}</h4>
+                <p className="text-sm text-indigo-100/60 italic leading-relaxed">
+                   "You connected with this wisdom <span className="text-white font-bold">{maxCount} times</span> this week. 🤲"
+                </p>
+             </div>
+
+             <div className="bg-white/5 rounded-[32px] p-8 border border-white/5 hover:bg-white/10 transition-all flex flex-col justify-center">
+                <p className="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-2">Heart of the Week</p>
+                <div className="flex items-baseline gap-2">
+                   <span className="text-5xl font-display font-black">{maxSurahCount}</span>
+                   <span className="text-sm text-indigo-200/40">Verses Engaged</span>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+  );
+};
 const InsightsPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -105,6 +189,7 @@ const InsightsPage: React.FC = () => {
   const [percentileEstimate, setPercentileEstimate] = useState<number>(0);
   const [totalVersesRead, setTotalVersesRead] = useState(0);
   const [daysAway, setDaysAway] = useState<number>(0);
+  const [rawEvents, setRawEvents] = useState<UserActivity[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -141,6 +226,7 @@ const InsightsPage: React.FC = () => {
         setMetrics(calculatedMetrics);
         setPercentileEstimate(percentile);
         setTotalVersesRead(new Set(typedEvents.map(e => `${e.surah_number}:${e.ayah_number}`)).size);
+        setRawEvents(typedEvents);
 
       } catch (err) {
         console.error("Error fetching insights:", err);
@@ -199,6 +285,9 @@ const InsightsPage: React.FC = () => {
               </p>
            </div>
 
+           {/* WEEKLY WRAP STORY */}
+           <WeeklyWrapCard events={rawEvents} />
+
            {/* MAIN DASHBOARD GRID */}
            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
@@ -241,6 +330,21 @@ const InsightsPage: React.FC = () => {
                        <div className="flex items-baseline gap-2 mb-2">
                           <span className="text-5xl md:text-7xl font-display font-black tracking-tighter">{Math.round(metrics.compositeSES)}</span>
                           <span className="text-xl font-bold opacity-50">/1000</span>
+                       </div>
+
+                       <div className="mt-2 mb-6 flex flex-col">
+                          <div className="flex items-center gap-3">
+                             <span className={`text-xl font-display font-black ${getSpiritualState(metrics.compositeSES).color}`}>
+                                {getSpiritualState(metrics.compositeSES).title}
+                             </span>
+                             <span className="text-white/20 text-xl font-light">|</span>
+                             <span className="text-lg font-arabic font-bold text-white/90">
+                                {getSpiritualState(metrics.compositeSES).arabicNative}
+                             </span>
+                          </div>
+                          <span className="text-[10px] text-white/40 uppercase font-black tracking-[0.2em] mt-1">
+                             {getSpiritualState(metrics.compositeSES).arabic}
+                          </span>
                        </div>
                        
                        <p className="text-sm font-medium text-teal-100 leading-relaxed mb-6">

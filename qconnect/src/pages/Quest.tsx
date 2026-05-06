@@ -96,10 +96,7 @@ const Quest: React.FC = () => {
               <Info className="w-5 h-5 md:w-6 md:h-6" />
             </button>
             <div className="flex items-center gap-1 md:gap-2 bg-neutral-50/50 border border-neutral-100 p-1 md:p-1.5 rounded-xl md:rounded-2xl">
-              <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-4 md:py-2 bg-white rounded-lg md:rounded-xl shadow-sm border border-neutral-50">
-                 <Zap className="w-3 h-3 md:w-4 md:h-4 text-amber-500 fill-amber-500" />
-                 <span className="text-[10px] md:text-xs font-black text-secondary">{profile?.quest_hearts || 0}</span>
-              </div>
+
               <div className="flex items-center gap-1.5 md:gap-2 px-2 py-1 md:px-4 md:py-2 bg-white rounded-lg md:rounded-xl shadow-sm border border-neutral-50">
                  <Star className="w-3 h-3 md:w-4 md:h-4 text-primary fill-primary" />
                  <span className="text-[10px] md:text-xs font-black text-secondary">{profile?.quest_coins || 0}</span>
