@@ -35,11 +35,12 @@ const Onboarding: React.FC = () => {
         .from('user_profiles')
         .upsert({ 
           id: user.id, 
+          role: 'student', // Fallback role to prevent DB constraint errors
           themes: [selectedTheme],
-          updated_at: new Date() 
+          updated_at: new Date().toISOString() 
         });
       if (!error) {
-        window.location.assign('/home');
+        navigate('/home');
       } else {
         console.error(error);
         setErrorMsg(error.message || JSON.stringify(error));
