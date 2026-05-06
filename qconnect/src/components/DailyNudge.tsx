@@ -171,75 +171,73 @@ const DailyNudge: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto w-full px-4 mb-6">
-      <div className={`relative overflow-hidden rounded-[40px] border ${theme.border} ${theme.bg} backdrop-blur-xl p-6 md:p-8 transition-all duration-700 shadow-sm`}>
+      <div className={`relative overflow-hidden rounded-[32px] border ${theme.border} ${theme.bg} backdrop-blur-xl p-5 md:p-8 transition-all duration-700 shadow-sm`}>
         
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className={`p-2 bg-white rounded-xl shadow-sm ${theme.accent}`}>
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 bg-white rounded-lg shadow-sm ${theme.accent}`}>
               {theme.icon}
             </div>
             <div>
-              <p className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.25em] mb-0.5">
-                Daily Contextual Nudge
+              <p className="text-[8px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-0.5">
+                Daily Guidance
               </p>
-              <h3 className={`text-sm font-bold ${theme.accent} capitalize`}>
+              <h3 className={`text-xs font-bold ${theme.accent} capitalize`}>
                 {nudge.theme}
               </h3>
             </div>
           </div>
-          <div className="bg-white/60 px-4 py-2 rounded-2xl border border-white/50 flex items-center gap-2">
-            <BookOpen size={12} className="text-neutral-400" />
-            <span className="text-[10px] font-bold text-neutral-500 tracking-widest uppercase">
+          <div className="bg-white/60 px-3 py-1.5 rounded-xl border border-white/50 flex items-center gap-2">
+            <BookOpen size={10} className="text-neutral-400" />
+            <span className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase">
               {nudge.verse_key}
             </span>
           </div>
         </div>
 
-        {/* Scripture Content */}
-        <div className="space-y-6">
-          {/* Arabic Text */}
+        {/* Content Area */}
+        <div className="space-y-4">
           <div className="text-right">
-            <p className="font-arabic text-3xl md:text-4xl leading-[1.6] text-neutral-800 dir-rtl drop-shadow-sm">
+            <p className="font-arabic text-2xl md:text-4xl leading-[1.6] text-neutral-800 dir-rtl">
               {verseData.text_uthmani}
             </p>
           </div>
 
-          {/* Translation */}
-          <div className="max-w-3xl border-l-2 border-[#00695C]/20 pl-6">
-            <p className="text-lg md:text-xl text-neutral-600 font-light leading-relaxed italic">
+          <div className="border-l-2 border-[#00695C]/10 pl-4 py-1">
+            <p className="text-base md:text-xl text-neutral-600 font-light leading-relaxed italic">
               "{translation}"
             </p>
           </div>
 
-          {/* Context from nudge database */}
           {nudge.context && (
-            <div className="bg-white/40 rounded-2xl p-4 border border-white/30">
-              <p className="text-sm text-teal-700 font-medium leading-relaxed flex items-start gap-2">
-                <span className="text-lg">💡</span>
+            <div className="bg-white/40 rounded-xl p-3 border border-white/30">
+              <p className="text-[11px] text-teal-700 font-medium leading-relaxed flex items-start gap-2">
+                <span className="text-sm">💡</span>
                 <span>{nudge.context}</span>
               </p>
             </div>
           )}
 
-          {/* Action Area */}
-          <div className="flex justify-end pt-6 border-t border-neutral-200/20">
-            <button 
-              onClick={handleFavorite}
-              disabled={isSaving}
-              className={`flex items-center justify-center gap-3 px-8 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95 ${
-                isFavorited 
-                  ? 'bg-rose-50 text-rose-500 shadow-rose-100 border border-rose-200' 
-                  : 'bg-[#00695C] hover:bg-[#004D40] text-white shadow-teal-900/10'
-              }`}
-            >
-              <Heart size={16} fill={isFavorited ? "currentColor" : "none"} />
-              {isFavorited ? 'Saved' : 'Add to Favorites'}
-            </button>
+          <div className="flex items-center justify-between pt-4 border-t border-neutral-200/20">
+             <span className="text-[9px] font-bold text-neutral-300 uppercase tracking-widest">Saved to Journey</span>
+             <button 
+               onClick={handleFavorite}
+               disabled={isSaving}
+               className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-bold text-[9px] uppercase tracking-widest transition-all active:scale-95 ${
+                 isFavorited 
+                   ? 'bg-rose-50 text-rose-500 border border-rose-100' 
+                   : 'bg-primary hover:bg-primary/90 text-white shadow-lg shadow-teal-900/10'
+               }`}
+             >
+               <Heart size={14} fill={isFavorited ? "currentColor" : "none"} />
+               {isFavorited ? 'Saved' : 'Favorite'}
+             </button>
           </div>
         </div>
       </div>
     </div>
+  );iv>
   );
 };
 

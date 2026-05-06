@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { 
-  ChevronLeft, Heart, Zap, RotateCcw, ArrowRight, Trophy, Sparkles, CheckCircle2, XCircle, Send
+  ChevronLeft, Heart, Zap, RotateCcw, ArrowRight, Trophy, Sparkles, CheckCircle2, XCircle, Send, Star
 } from 'lucide-react';
 
 const QuestPlay: React.FC = () => {
@@ -21,6 +21,7 @@ const QuestPlay: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [resultMode, setResultMode] = useState<'success' | 'fail' | null>(null);
   const [questionsFetchError, setQuestionsFetchError] = useState<string | null>(null);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     const startLevel = async () => {
@@ -40,6 +41,14 @@ const QuestPlay: React.FC = () => {
         setLoading(false);
         return;
       }
+
+      // Fetch profile for HUD
+      const { data: profileData } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      setProfile(profileData);
       
       // No longer tracking hearts or hints per user request
 

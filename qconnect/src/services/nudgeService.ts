@@ -80,8 +80,21 @@ export const getDailyNudge = async (): Promise<ThemeVerse | null> => {
       return null;
     }
 
-    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
-    return randomVerse;
+    // Create a deterministic seed based on date, user ID, and time block
+    const dateSeed = new Date().toISOString().split('T')[0];
+    const seedString = `${dateSeed}-${user.id}-${timeOfDay}`;
+    
+    // Simple hash function for seeding
+    let hash = 0;
+    for (let i = 0; i < seedString.length; i++) {
+      hash = (hash << 5) - hash + seedString.charCodeAt(i);
+      hash |= 0; // Convert to 32bit integer
+    }
+    
+    const seededIndex = Math.abs(hash) % verses.length;
+    const deterministicVerse = verses[seededIndex];
+    
+    return deterministicVerse;
 
   } catch (error) {
     console.error('Error in getDailyNudge:', error);
