@@ -41,7 +41,8 @@ const DailyNudge: React.FC = () => {
     setLoading(true);
     try {
       const today = new Date().toISOString().split('T')[0];
-      const cacheKey = `daily_nudge_data_${today}`;
+      const timeOfDay = getTimeOfDay();
+      const cacheKey = `daily_nudge_data_${today}_${timeOfDay}`;
       const cachedData = localStorage.getItem(cacheKey);
 
       let nudgeData;

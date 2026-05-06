@@ -223,13 +223,7 @@ const Home: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-3 shrink-0 relative" ref={modalRef}>
-            <button 
-              onClick={() => navigate('/quest')}
-              className="flex items-center gap-1.5 md:gap-2.5 bg-amber-50 border border-amber-100 px-2 py-1.5 md:px-4 md:py-2.5 rounded-xl md:rounded-2xl shadow-sm hover:shadow-md transition-all active:scale-95 group"
-            >
-              <span className="text-sm md:text-lg leading-none transition-transform group-hover:scale-125">🪙</span>
-              <span className="text-[10px] md:text-xs font-black text-amber-700">{profile?.quest_coins || 0}</span>
-            </button>
+            {/* Points removed from Home per user request */}
             
             <button 
               onClick={() => setIsProfileModalOpen(!isProfileModalOpen)}
