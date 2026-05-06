@@ -237,7 +237,6 @@ const DailyNudge: React.FC = () => {
         </div>
       </div>
     </div>
-  );iv>
   );
 };
 
