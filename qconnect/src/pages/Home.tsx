@@ -33,7 +33,7 @@ const Home: React.FC = () => {
       setUserAuth(user);
       const { data: profileData } = await supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle();
       
-      if (!profileData || !profileData.role) {
+      if (!profileData) {
          navigate('/onboarding', { replace: true });
          return false;
       }

@@ -35,7 +35,6 @@ const Onboarding: React.FC = () => {
         .from('user_profiles')
         .upsert({ 
           id: user.id, 
-          role: 'user', 
           themes: [selectedTheme],
           updated_at: new Date() 
         });
