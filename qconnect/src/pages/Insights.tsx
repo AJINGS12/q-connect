@@ -157,7 +157,7 @@ const WeeklyWrapCard = ({ events }: { events: UserActivity[] }) => {
           </div>
 
           <div className="space-y-2">
-             <h3 className="text-4xl font-display font-black tracking-tight">Your Weekly <span className="text-indigo-400">Reflection</span></h3>
+             <h3 className="text-3xl md:text-4xl font-display font-black tracking-tight">Your Weekly <span className="text-indigo-400">Reflection</span></h3>
              <p className="text-indigo-200/60 font-medium">This week, one message truly resonated with you.</p>
           </div>
 
@@ -328,7 +328,7 @@ const InsightsPage: React.FC = () => {
                        </div>
                        
                        <div className="flex items-baseline gap-2 mb-2">
-                          <span className="text-5xl md:text-7xl font-display font-black tracking-tighter">{Math.round(metrics.compositeSES)}</span>
+                          <span className="text-4xl md:text-7xl font-display font-black tracking-tighter">{Math.round(metrics.compositeSES)}</span>
                           <span className="text-xl font-bold opacity-50">/1000</span>
                        </div>
 

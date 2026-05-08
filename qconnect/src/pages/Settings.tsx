@@ -152,11 +152,15 @@ const Settings: React.FC = () => {
           </div>
           <div className="premium-card overflow-hidden p-2">
             {[
-              { icon: <Bell size={18}/>, label: "Reminders", detail: "Daily notifications & progress updates" },
+              { icon: <Bell size={18}/>, label: "Reminders", detail: "Daily notifications & progress updates", path: "/reminders" },
               { icon: <Moon size={18}/>, label: "Appearance", detail: "Light theme active" },
               { icon: <Globe size={18}/>, label: "Language", detail: "English (Default)" },
             ].map((item, i) => (
-              <button key={i} className="w-full flex items-center justify-between p-8 hover:bg-neutral-50/50 transition-all rounded-[28px] group text-left">
+              <button 
+                key={i} 
+                onClick={() => item.path && navigate(item.path)}
+                className="w-full flex items-center justify-between p-8 hover:bg-neutral-50/50 transition-all rounded-[28px] group text-left"
+              >
                 <div className="flex items-center gap-6">
                   <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-300 group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
                     {item.icon}

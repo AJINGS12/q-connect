@@ -25,7 +25,7 @@ const Reminders: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [notificationPermission, setNotificationPermission] = useState<string>(
-    typeof Notification !== 'undefined' ? Notification.permission : 'default'
+    typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
   );
 
   // Form State
@@ -133,9 +133,15 @@ const Reminders: React.FC = () => {
   };
 
   const requestPermission = async () => {
-    if (typeof Notification === 'undefined') return;
+    if (typeof Notification === 'undefined') {
+      alert("Your browser doesn't support desktop notifications. If you're on iOS, please 'Add to Home Screen' first.");
+      return;
+    }
     const permission = await Notification.requestPermission();
     setNotificationPermission(permission);
+    if (permission === 'denied') {
+      alert("Notification permission was denied. Please enable it in your browser/phone settings to receive reminders.");
+    }
   };
 
   const closeModal = () => {
@@ -207,9 +213,9 @@ const Reminders: React.FC = () => {
         
         {/* Notification Permission Banner */}
         {notificationPermission === 'default' && (
-          <div className="bg-blue-50 border border-blue-100 p-6 rounded-[32px] flex items-center justify-between gap-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="bg-blue-50 border border-blue-100 p-6 rounded-[32px] flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm animate-in fade-in slide-in-from-top-4 duration-700">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <div className="w-12 h-12 bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
                 <Bell size={24} />
               </div>
               <div>
@@ -219,10 +225,17 @@ const Reminders: React.FC = () => {
             </div>
             <button 
               onClick={requestPermission}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-md shadow-blue-600/20"
+              className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-md shadow-blue-600/20"
             >
               Enable
             </button>
+          </div>
+        )}
+
+        {notificationPermission === 'denied' && (
+          <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex items-center gap-4 text-amber-800">
+            <Bell size={18} className="shrink-0 text-amber-400" />
+            <p className="text-[10px] font-bold leading-tight">Notifications are blocked. Please enable them in your browser settings to get reminded.</p>
           </div>
         )}
 
@@ -273,16 +286,16 @@ const Reminders: React.FC = () => {
                       <h4 className={`text-lg font-display font-black transition-colors ${reminder.is_active ? 'text-neutral-800' : 'text-neutral-400'}`}>
                         {reminder.surah_name}
                       </h4>
-                      <div className="flex items-center gap-3 mt-1">
-                        <div className="flex items-center gap-1.5 text-neutral-400 text-xs font-bold">
+                      <div className="flex flex-wrap items-center gap-3 mt-1">
+                        <div className="flex items-center gap-1.5 text-neutral-400 text-xs font-bold whitespace-nowrap">
                           <Clock size={12} /> {reminder.reminder_time}
                         </div>
-                        <span className="text-neutral-200 text-[10px]">•</span>
-                        <div className="flex items-center gap-1.5 text-neutral-400 text-xs font-bold">
+                        <span className="text-neutral-200 text-[10px] hidden sm:block">•</span>
+                        <div className="flex items-center gap-1.5 text-neutral-400 text-xs font-bold whitespace-nowrap">
                           <Calendar size={12} /> 
                           {reminder.reminder_date 
-                            ? new Date(reminder.reminder_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                            : reminder.days.join(', ')}
+                            ? new Date(reminder.reminder_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                            : (reminder.days.length === 7 ? 'Every Day' : reminder.days.join(', '))}
                         </div>
                       </div>
                     </div>
@@ -317,9 +330,9 @@ const Reminders: React.FC = () => {
 
       {/* Add Reminder Modal */}
       {isAdding && (
-        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={closeModal} />
-          <div className="relative bg-white w-full max-w-md rounded-t-[40px] md:rounded-[40px] p-8 shadow-2xl animate-in slide-in-from-bottom-8 duration-500">
+        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6 overflow-y-auto pt-20 md:pt-0">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={closeModal} />
+          <div className="relative bg-white w-full max-w-md rounded-t-[40px] md:rounded-[40px] p-6 md:p-8 shadow-2xl animate-in slide-in-from-bottom-8 duration-500 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-2xl font-display font-black text-neutral-800">
                 {editingId ? 'Edit Reminder' : 'New Reminder'}
@@ -382,12 +395,12 @@ const Reminders: React.FC = () => {
               {reminderType === 'recurring' ? (
                 <div>
                   <label className="block text-[10px] font-black text-[#00695C] uppercase tracking-[0.2em] mb-3">Repeat on Days</label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-2">
                     {daysOfWeek.map(day => (
                       <button
                         key={day}
                         onClick={() => toggleDay(day)}
-                        className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                        className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                           selectedDays.includes(day) 
                             ? 'bg-[#00695C] text-white shadow-md' 
                             : 'bg-neutral-50 text-neutral-400 hover:bg-neutral-100'

@@ -329,7 +329,7 @@ const SocialGroups: React.FC = () => {
         {/* HEADER */}
         {!selectedGroup && (
           <div className="space-y-4">
-             <h1 className="text-3xl md:text-5xl font-display font-black tracking-tight text-neutral-800">
+             <h1 className="text-4xl md:text-5xl font-display font-black tracking-tight text-neutral-800">
                 Social <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00695C] to-[#004D40]">Recitation</span>
              </h1>
              <p className="text-neutral-500 font-medium max-w-md">
@@ -495,7 +495,7 @@ const SocialGroups: React.FC = () => {
                         </div>
                        
                        <div className="flex items-center gap-4 mb-4">
-                          <h2 className="text-4xl md:text-5xl font-display font-black tracking-tight">{selectedGroup.name}</h2>
+                          <h2 className="text-3xl md:text-5xl font-display font-black tracking-tight">{selectedGroup.name}</h2>
                           {isAdmin && (
                             <button 
                               onClick={() => {

@@ -197,7 +197,7 @@ const Home: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search Surahs..." 
-              className="w-full bg-neutral-50/50 border border-neutral-100 py-2 md:py-3.5 pl-10 md:pl-14 pr-4 md:pr-6 rounded-xl md:rounded-2xl focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all font-light text-xs md:text-sm text-secondary"
+              className="w-full bg-neutral-50/50 border border-neutral-100 py-2.5 md:py-3.5 pl-10 md:pl-14 pr-4 md:pr-6 rounded-xl md:rounded-2xl focus:bg-white focus:border-primary/20 focus:ring-4 focus:ring-primary/5 focus:outline-none transition-all font-light text-xs md:text-sm text-secondary"
             />
             
             {filteredSurahs.length > 0 && (
@@ -288,7 +288,7 @@ const Home: React.FC = () => {
               <div className="flex-grow space-y-8 w-full relative z-10">
                 <div className="space-y-1">
                   <p className="text-[10px] text-white/60 font-black tracking-[0.3em] uppercase">Ready to Begin?</p>
-                  <h3 className="text-5xl font-display font-bold text-white tracking-tight">Explore the Quran</h3>
+                  <h3 className="text-3xl md:text-5xl font-display font-bold text-white tracking-tight">Explore the Quran</h3>
                 </div>
                 
                 <p className="text-lg text-white/80 font-light leading-relaxed max-w-md">
@@ -331,7 +331,7 @@ const Home: React.FC = () => {
               <div className="flex-grow space-y-8 w-full relative z-10">
                 <div className="space-y-1">
                   <p className="text-[10px] text-primary font-black tracking-[0.3em] uppercase">My Progress</p>
-                  <h3 className="text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name || 'Al-Fatihah'}</h3>
+                  <h3 className="text-3xl md:text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name || 'Al-Fatihah'}</h3>
                 </div>
                 
                 <div className="flex items-center gap-8">

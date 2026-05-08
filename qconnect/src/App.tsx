@@ -45,8 +45,9 @@ function App() {
   useEffect(() => {
     const checkUser = async (currentSession: any) => {
       if (currentSession) {
-        const { data } = await supabase.from('user_profiles').select('role').eq('id', currentSession.user.id).maybeSingle();
-        setIsOnboarded(!!data?.role);
+        const { data } = await supabase.from('user_profiles').select('themes').eq('id', currentSession.user.id).maybeSingle();
+        // User is onboarded if they have at least one theme selected
+        setIsOnboarded(!!(data?.themes && data.themes.length > 0));
         setSession(currentSession);
       } else {
         setSession(null);
