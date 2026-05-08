@@ -17,6 +17,21 @@ interface Reminder {
   is_active: boolean;
 }
 
+const urlBase64ToUint8Array = (base64String: string) => {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+};
+
 const Reminders: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -137,10 +152,50 @@ const Reminders: React.FC = () => {
       alert("Your browser doesn't support desktop notifications. If you're on iOS, please 'Add to Home Screen' first.");
       return;
     }
+    
     const permission = await Notification.requestPermission();
     setNotificationPermission(permission);
-    if (permission === 'denied') {
+    
+    if (permission === 'granted') {
+      await subscribeToPush();
+    } else if (permission === 'denied') {
       alert("Notification permission was denied. Please enable it in your browser/phone settings to receive reminders.");
+    }
+  };
+
+  const subscribeToPush = async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      
+      // Get the VAPID public key from env
+      const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!vapidPublicKey) {
+        console.error('VAPID public key is missing');
+        return;
+      }
+
+      const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedVapidKey
+      });
+
+      // Save subscription to Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('push_subscriptions')
+        .upsert({
+          user_id: user.id,
+          subscription_json: JSON.parse(JSON.stringify(subscription))
+        });
+
+      if (error) throw error;
+      console.log('Successfully subscribed to push notifications');
+    } catch (e) {
+      console.error('Failed to subscribe to push notifications:', e);
     }
   };
 
