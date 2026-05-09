@@ -80,7 +80,7 @@ const Onboarding: React.FC = () => {
         throw new Error("Profile created but not found. Please check your Database RLS policies.");
       }
 
-      navigate('/home');
+      window.location.href = '/home';
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Failed to complete setup. Check RLS policies.");
