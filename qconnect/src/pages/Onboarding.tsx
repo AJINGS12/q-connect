@@ -62,6 +62,8 @@ const Onboarding: React.FC = () => {
             id: user.id, 
             display_name: fullName,
             themes: [selectedTheme],
+            last_surah_num: null,
+            last_surah_name: null,
             updated_at: new Date().toISOString()
           });
         error = insertError;

@@ -39,11 +39,11 @@ const Home: React.FC = () => {
       }
       
       setProfile(profileData);
-      console.log('Home: User Profile State:', {
-        last_surah_num: profileData?.last_surah_num,
-        last_surah_name: profileData?.last_surah_name,
-        has_started: !!(profileData?.last_surah_num && parseInt(profileData.last_surah_num) > 0)
-      });
+      const startCheck = !!(profileData?.last_surah_num && parseInt(profileData.last_surah_num) > 0 && profileData?.last_surah_name);
+      console.log('--- DEBUG: Home Data ---');
+      console.log('Profile:', profileData);
+      console.log('hasStarted check result:', startCheck);
+      console.log('------------------------');
 
       const { data: refData } = await supabase
         .from('reflections')
