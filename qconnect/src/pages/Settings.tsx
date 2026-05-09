@@ -157,7 +157,6 @@ const Settings: React.FC = () => {
             ].map((item, i) => (
               <button 
                 key={i} 
-                onClick={() => item.path && navigate(item.path)}
                 className="w-full flex items-center justify-between p-8 hover:bg-neutral-50/50 transition-all rounded-[28px] group text-left"
               >
                 <div className="flex items-center gap-6">
