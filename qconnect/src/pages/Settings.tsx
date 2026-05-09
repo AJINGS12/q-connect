@@ -152,7 +152,6 @@ const Settings: React.FC = () => {
           </div>
           <div className="premium-card overflow-hidden p-2">
             {[
-              { icon: <Bell size={18}/>, label: "Reminders", detail: "Daily notifications & progress updates", path: "/reminders" },
               { icon: <Moon size={18}/>, label: "Appearance", detail: "Light theme active" },
               { icon: <Globe size={18}/>, label: "Language", detail: "English (Default)" },
             ].map((item, i) => (

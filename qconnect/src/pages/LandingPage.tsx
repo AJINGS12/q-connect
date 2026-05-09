@@ -32,12 +32,6 @@ const features = [
     bgColor: "bg-[#FFF8E1]"
   },
   {
-    title: "Smart Reminders",
-    description: "Set custom schedules for your favorite Surahs. Never miss the Friday sunnah with one-tap Al-Kahf reminders and automated phone notifications.",
-    image: remindersImg,
-    bgColor: "bg-[#E0F2F1]"
-  },
-  {
     title: "Knowledge Quest",
     description: "Turn Quranic knowledge into an adventure. Complete daily challenges, answer verse-based quizzes, and earn Quest Coins to unlock rewards.",
     image: knowledgeQuestImg,
