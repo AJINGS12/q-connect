@@ -33,6 +33,8 @@ const Onboarding: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || "User";
+
       // 1. Check if profile exists
       const { data: existing } = await supabase
         .from('user_profiles')
@@ -47,6 +49,7 @@ const Onboarding: React.FC = () => {
           .from('user_profiles')
           .update({ 
             themes: [selectedTheme],
+            full_name: fullName,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id);
@@ -57,7 +60,7 @@ const Onboarding: React.FC = () => {
           .from('user_profiles')
           .insert({ 
             id: user.id, 
-            role: 'student', 
+            full_name: fullName,
             themes: [selectedTheme],
             updated_at: new Date().toISOString()
           });
@@ -114,53 +117,52 @@ const Onboarding: React.FC = () => {
       </header>
 
       {/* --- CONTENT --- */}
-      <main className="flex-grow flex flex-col items-center justify-center px-6 max-w-6xl mx-auto w-full pb-20">
+      <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-6 max-w-6xl mx-auto w-full pb-20">
         
-
           <div className="w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-display font-bold text-secondary mb-3">Select your core intention</h2>
-              <p className="text-neutral-400 max-w-xl mx-auto leading-relaxed">Select a theme that syncs to your account to receive daily contextual nudges. We will deliver verses and reminders aligned exactly with this intention.</p>
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-secondary mb-3">Select your core intention</h2>
+              <p className="text-neutral-400 max-w-xl mx-auto leading-relaxed text-sm">Select a theme to receive daily contextual nudges aligned with this intention.</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 max-w-4xl mx-auto">
               {themes.map((t) => {
                 const isActive = selectedTheme === t.id;
                 return (
                   <button
                     key={t.id}
                     onClick={() => setSelectedTheme(t.id)}
-                    className={`aspect-square rounded-[32px] flex flex-col items-center justify-center gap-3 border-2 transition-all duration-300 ${
+                    className={`aspect-square rounded-2xl md:rounded-[32px] flex flex-col items-center justify-center gap-2 md:gap-3 border-2 transition-all duration-300 ${
                       isActive 
                       ? 'border-primary bg-primary text-white shadow-xl scale-105' 
-                      : 'border-white bg-white hover:border-neutral-100'
+                      : 'border-white bg-white hover:border-neutral-100 shadow-sm'
                     }`}
                   >
-                    <div className={isActive ? 'text-white' : 'text-primary'}>
+                    <div className={`${isActive ? 'text-white' : 'text-primary'} scale-75 md:scale-100`}>
                       {t.icon}
                     </div>
-                    <span className="text-[13px] font-bold tracking-tight">{t.label}</span>
+                    <span className="text-[10px] md:text-[13px] font-bold tracking-tight">{t.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            <div className="mt-16 flex flex-col items-center justify-center">
+            <div className="mt-12 md:mt-16 flex flex-col items-center justify-center safe-bottom">
               {errorMsg && (
                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-sm font-medium w-full max-w-md text-center">
-                    <p className="font-bold mb-1">Database Error:</p>
+                    <p className="font-bold mb-1">Setup Error:</p>
                     <p className="font-light">{errorMsg}</p>
                  </div>
               )}
               <button
                 onClick={handleComplete}
                 disabled={!selectedTheme || loading}
-                className={`px-16 py-5 rounded-full font-bold text-lg transition-all duration-500 shadow-2xl ${
+                className={`w-full max-w-xs py-4 md:py-5 rounded-full font-bold text-base md:text-lg transition-all duration-500 shadow-2xl ${
                   selectedTheme && !loading
                   ? 'bg-primary text-white shadow-primary/20 hover:shadow-primary/40 active:scale-95'
                   : 'bg-neutral-200 text-neutral-400 cursor-not-allowed opacity-50'
                 }`}
               >
-                {loading ? 'Preparing Journey...' : 'Finish'}
+                {loading ? 'Preparing Journey...' : 'Finish Setup'}
               </button>
             </div>
         </div>

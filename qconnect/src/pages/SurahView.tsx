@@ -136,6 +136,7 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   useEffect(() => {
     audioRef.current = new Audio();
     audioRef.current.preload = 'auto';
+    audioRef.current.crossOrigin = 'anonymous';
     
     return () => {
       if (audioRef.current) {
@@ -149,44 +150,45 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     const [sId, vId] = verseKey.split(':');
     const paddedSurah = sId.padStart(3, '0');
     const paddedVerse = vId.padStart(3, '0');
+    const key6 = `${paddedSurah}${paddedVerse}`;
     
     return [
-      `https://verses.quran.com/Alafasy/mp3/${verseKey}.mp3`,
-      `https://everyayah.com/data/Alafasy_128kbps/${paddedSurah}${paddedVerse}.mp3`,
-      `https://www.everyayah.com/data/Mishary_Rashid_Alafasy_128kbps/${paddedSurah}${paddedVerse}.mp3`,
+      `https://audio.qurancdn.com/Alafasy/mp3/${key6}.mp3`,
+      `https://verses.quran.com/Alafasy/mp3/${key6}.mp3`,
+      `https://everyayah.com/data/Alafasy_128kbps/${key6}.mp3`,
       verses[parseInt(vId) - 1]?.audio?.url
     ].filter(Boolean);
   };
 
-  const tryPlayAudio = async (urls: string[], index: number): Promise<boolean> => {
+  const tryPlayAudio = async (urls: string[]): Promise<boolean> => {
     if (!audioRef.current) return false;
+    
     for (const url of urls) {
       try {
         audioRef.current.pause();
         audioRef.current.src = url;
         audioRef.current.load();
         
+        // Use a simpler promise for loading
         await new Promise((resolve, reject) => {
-          const audio = audioRef.current!;
           const onCanPlay = () => {
-            audio.removeEventListener('canplay', onCanPlay);
-            audio.removeEventListener('error', onError);
+            audioRef.current?.removeEventListener('canplay', onCanPlay);
             resolve(true);
           };
-          const onError = (e: Event) => {
-            audio.removeEventListener('canplay', onCanPlay);
-            audio.removeEventListener('error', onError);
-            reject(e);
+          const onError = () => {
+            audioRef.current?.removeEventListener('error', onError);
+            reject();
           };
-          audio.addEventListener('canplay', onCanPlay);
-          audio.addEventListener('error', onError);
-          setTimeout(() => reject(new Error('Timeout')), 5000);
+          audioRef.current?.addEventListener('canplay', onCanPlay);
+          audioRef.current?.addEventListener('error', onError);
+          setTimeout(reject, 6000);
         });
 
         await audioRef.current.play();
         setAudioError(null);
         return true;
       } catch (err) {
+        console.warn(`Failed to play ${url}, trying next...`);
         continue;
       }
     }
@@ -234,7 +236,7 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
        scroll_velocity: 0
     });
     const audioUrls = getAudioUrls(verse.verse_key);
-    const success = await tryPlayAudio(audioUrls, index);
+    const success = await tryPlayAudio(audioUrls);
     
     if (success) {
       setIsPlaying(true);
@@ -277,8 +279,15 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     }
   };
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (!verses.length) return;
+    
+    // Unlock audio context for mobile
+    if (audioRef.current && audioRef.current.src === '') {
+      audioRef.current.play().catch(() => {});
+      audioRef.current.pause();
+    }
+
     if (isPlaying) {
       audioRef.current?.pause();
       setIsPlaying(false);
