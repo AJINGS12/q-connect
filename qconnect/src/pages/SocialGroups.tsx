@@ -94,10 +94,15 @@ const SocialGroups: React.FC = () => {
           .select('id, display_name')
           .in('id', userIds);
 
-        const mergedMembers = members.map(m => ({
-          ...m,
-          display_name: profiles?.find(p => p.id === m.user_id)?.display_name || 'Anonymous Reader'
-        }));
+        const now = new Date().toDateString();
+        const mergedMembers = members.map(m => {
+          const isToday = m.last_updated && new Date(m.last_updated).toDateString() === now;
+          return {
+            ...m,
+            status_signal: isToday ? m.status_signal : 'ready',
+            display_name: profiles?.find(p => p.id === m.user_id)?.display_name || 'Anonymous Reader'
+          };
+        });
         
         // Sort: current user first, then admins, then others
         mergedMembers.sort((a, b) => {
@@ -281,7 +286,7 @@ const SocialGroups: React.FC = () => {
     
     // Check if it's from a previous day
     const isToday = date.toDateString() === now.toDateString();
-    if (!isToday) return "Yesterday";
+    if (!isToday) return "Awaiting check-in";
 
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);

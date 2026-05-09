@@ -92,21 +92,23 @@ const WisdomSearch: React.FC = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto flex items-center shadow-2xl rounded-2xl md:rounded-[32px] bg-white group border border-neutral-100/50 focus-within:border-primary/30 transition-all">
-            <div className="absolute left-4 md:left-6 text-neutral-300 group-focus-within:text-primary transition-colors">
-              <Search className="w-5 h-5 md:w-6 md:h-6" />
+          <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-3 md:gap-0 shadow-2xl rounded-2xl md:rounded-[32px] bg-white p-2 md:p-0 group border border-neutral-100/50 focus-within:border-primary/30 transition-all">
+            <div className="flex-grow flex items-center w-full">
+              <div className="pl-4 md:pl-6 text-neutral-300 group-focus-within:text-primary transition-colors">
+                <Search className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="E.g., Patience, Prayer, Fasting..."
+                className="w-full bg-transparent py-4 md:py-6 pl-4 md:pl-6 pr-4 text-base md:text-xl outline-none placeholder:text-neutral-300 text-secondary"
+              />
             </div>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="E.g., Patience, Prayer, Fasting..."
-              className="w-full bg-transparent py-4 md:py-6 pl-12 md:pl-16 pr-24 md:pr-32 text-base md:text-xl outline-none placeholder:text-neutral-300 text-secondary"
-            />
             <button
               type="submit"
               disabled={!query.trim() || loading}
-              className="absolute right-2 md:right-3 bg-primary text-white px-6 md:px-8 py-2 md:py-3.5 rounded-xl md:rounded-[24px] font-bold text-xs md:text-sm uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full md:w-auto md:absolute md:right-3 bg-primary text-white px-6 md:px-8 py-4 md:py-3.5 rounded-xl md:rounded-[24px] font-bold text-xs md:text-sm uppercase tracking-widest shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Search
             </button>

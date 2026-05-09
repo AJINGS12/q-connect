@@ -105,19 +105,16 @@ const Settings: React.FC = () => {
         <section className="premium-card p-10 flex items-center gap-8 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] text-primary group-hover:scale-110 transition-transform duration-1000"><User size={120} /></div>
           <div className="w-24 h-24 rounded-[32px] bg-primary/5 flex items-center justify-center text-primary text-4xl font-display font-bold uppercase shadow-inner border border-white relative z-10">
-            {profile?.role?.charAt(0) || <User />}
+            {profile?.full_name?.charAt(0) || <User size={32} />}
           </div>
           <div className="relative z-10 space-y-3">
             <div className="space-y-1">
-               <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Profile Status</span>
-               <h2 className="text-3xl font-display font-bold text-secondary tracking-tight italic">Current Role: <span className="text-primary capitalize">{profile?.role || 'User'}</span></h2>
+               <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Account Holder</span>
+               <h2 className="text-3xl font-display font-bold text-secondary tracking-tight italic">{profile?.full_name || 'User'}</h2>
             </div>
             <div className="flex gap-4">
-              <div className="bg-amber-50/50 border border-amber-100 text-amber-600 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                 <span>🪙</span> {profile?.quest_coins || 0} Points
-              </div>
               <div className="bg-primary/5 border border-primary/10 text-primary px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                 <span>Level</span> {profile?.current_quest_level || 1}
+                 <span>Connected</span>
               </div>
             </div>
           </div>
@@ -146,35 +143,6 @@ const Settings: React.FC = () => {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="flex items-center justify-between px-4">
-             <span className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">Environmental Settings</span>
-          </div>
-          <div className="premium-card overflow-hidden p-2">
-            {[
-              { icon: <Moon size={18}/>, label: "Appearance", detail: "Light theme active" },
-              { icon: <Globe size={18}/>, label: "Language", detail: "English (Default)" },
-            ].map((item, i) => (
-              <button 
-                key={i} 
-                className="w-full flex items-center justify-between p-8 hover:bg-neutral-50/50 transition-all rounded-[28px] group text-left"
-              >
-                <div className="flex items-center gap-6">
-                  <div className="w-12 h-12 bg-neutral-50 rounded-2xl flex items-center justify-center text-neutral-300 group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm text-secondary group-hover:text-primary transition-colors">{item.label}</p>
-                    <p className="text-xs text-neutral-400 font-light mt-0.5">{item.detail}</p>
-                  </div>
-                </div>
-                <div className="text-neutral-200 group-hover:text-primary transition-all">
-                   <ChevronLeft size={16} className="rotate-180" />
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
 
         {/* --- QURAN FOUNDATION ACCOUNT --- */}
         <div className="space-y-6">
