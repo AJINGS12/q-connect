@@ -150,16 +150,16 @@ const Quran: React.FC = () => {
                        </div>
                        <div className="w-full flex items-end justify-between">
                            <div className="flex flex-col">
-                               <h2 className="text-2xl font-display font-black text-neutral-800 tracking-tight group-hover:text-[#00695C] transition-all duration-500">
+                                <h2 className="text-xl md:text-2xl font-display font-black text-neutral-800 tracking-tight group-hover:text-[#00695C] transition-all duration-500">
                                    {s.name_simple}
-                               </h2>
+                                </h2>
                                <span className="text-xs font-medium text-neutral-400 max-w-[140px] truncate block opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 mt-1">
                                   Read Surah
                                </span>
                            </div>
-                           <div className="text-3xl font-arabic text-[#00695C]/40 group-hover:text-[#00695C] transition-all duration-700">
+                            <div className="text-2xl md:text-3xl font-arabic text-[#00695C]/40 group-hover:text-[#00695C] transition-all duration-700">
                                {s.name_arabic}
-                           </div>
+                            </div>
                        </div>
                    </div>
                </div>

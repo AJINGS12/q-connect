@@ -59,23 +59,16 @@ const ContextualCompanion: React.FC<ContextualCompanionProps> = ({ prompt, onClo
             "{prompt.text}"
           </h3>
 
-          <div className="pt-4 flex items-center justify-between border-t border-neutral-100/50">
+          <div className="pt-4 flex items-center justify-center border-t border-neutral-100/50">
             <div className="flex gap-4">
               <button 
                 onClick={() => onAction?.('share')}
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-100 text-neutral-400 hover:text-primary hover:border-primary/20 transition-all"
+                className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-neutral-100 text-neutral-400 hover:text-primary hover:border-primary/20 shadow-sm transition-all"
                 title="Share reflection"
               >
-                <Share2 size={18} />
+                <Share2 size={20} />
               </button>
             </div>
-            
-            <button 
-              onClick={onClose}
-              className="px-6 py-3 rounded-full bg-secondary text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-secondary/10 hover:shadow-secondary/20 active:scale-95 transition-all"
-            >
-              Continue
-            </button>
           </div>
         </div>
 

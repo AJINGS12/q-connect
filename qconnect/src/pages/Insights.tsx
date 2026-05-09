@@ -98,11 +98,11 @@ const RadarChart = ({ metrics }: { metrics: EngagementMetrics | null }) => {
   );
 };
 const getSpiritualState = (score: number) => {
-  if (score < 200) return { title: 'The Seeker', arabic: 'Al-Bāḥith', arabicNative: 'الباحث', color: 'text-blue-400' };
-  if (score < 400) return { title: 'The Beginner', arabic: 'Al-Mubtadi\'', arabicNative: 'المبتديء', color: 'text-teal-400' };
-  if (score < 600) return { title: 'The Mindful', arabic: 'Al-Mutayaqqiz', arabicNative: 'المتيقظ', color: 'text-emerald-400' };
-  if (score < 800) return { title: 'The Contemplative', arabic: 'Al-Mutadabbir', arabicNative: 'المتدبر', color: 'text-amber-400' };
-  return { title: 'The Devoted', arabic: 'Al-Muta\'abbid', arabicNative: 'المتعبد', color: 'text-yellow-400' };
+  if (score < 200) return { title: 'Curious Heart', arabic: 'Al-Bāḥith', arabicNative: 'الباحث', color: 'text-blue-400' };
+  if (score < 400) return { title: 'Gentle Soul', arabic: 'Al-Mubtadi\'', arabicNative: 'المبتديء', color: 'text-teal-400' };
+  if (score < 600) return { title: 'Peaceful Presence', arabic: 'Al-Mutayaqqiz', arabicNative: 'المتيقظ', color: 'text-emerald-400' };
+  if (score < 800) return { title: 'Quiet Thinker', arabic: 'Al-Mutadabbir', arabicNative: 'المتدبر', color: 'text-amber-400' };
+  return { title: 'Deeply Connected', arabic: 'Al-Muta\'abbid', arabicNative: 'المتعبد', color: 'text-yellow-400' };
 };
 
 const WeeklyWrapCard = ({ events }: { events: UserActivity[] }) => {

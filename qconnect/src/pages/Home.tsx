@@ -242,7 +242,7 @@ const Home: React.FC = () => {
                     {(userAvatar && !imgError) ? <img src={userAvatar} className="w-full h-full object-cover" /> : <span className="text-3xl text-primary font-bold uppercase">{firstName.charAt(0)}</span>}
                   </div>
                   <h3 className="font-bold text-secondary text-lg">{displayName}</h3>
-                  <p className="text-[10px] text-neutral-400 uppercase tracking-widest mt-1">Believer</p>
+                  <p className="text-[10px] text-neutral-400 uppercase tracking-widest mt-1">Traveler</p>
                 </div>
                 <div className="space-y-1">
                    <button onClick={() => { navigate('/settings'); setIsProfileModalOpen(false); }} className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-neutral-50 text-xs font-bold text-neutral-500 transition-all uppercase tracking-widest">
@@ -285,7 +285,7 @@ const Home: React.FC = () => {
               <div className="flex-grow space-y-8 w-full relative z-10">
                 <div className="space-y-1">
                   <p className="text-[10px] text-white/60 font-black tracking-[0.3em] uppercase">Begin your first session</p>
-                  <h3 className="text-3xl md:text-5xl font-display font-bold text-white tracking-tight">Explore the Holy Quran</h3>
+                  <h3 className="text-2xl md:text-5xl font-display font-bold text-white tracking-tight leading-tight">Explore the Holy Quran</h3>
                 </div>
                 
                 <p className="text-lg text-white/80 font-light leading-relaxed max-w-md">
@@ -331,7 +331,7 @@ const Home: React.FC = () => {
               <div className="flex-grow space-y-8 w-full relative z-10">
                 <div className="space-y-1">
                   <p className="text-[10px] text-primary font-black tracking-[0.3em] uppercase">My Progress</p>
-                  <h3 className="text-3xl md:text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name}</h3>
+                  <h3 className="text-2xl md:text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors leading-tight">{profile?.last_surah_name}</h3>
                 </div>
                 
                 <div className="flex items-center gap-8">

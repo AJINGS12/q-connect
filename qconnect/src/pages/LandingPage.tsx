@@ -209,7 +209,7 @@ const LandingPage: React.FC = () => {
             <div className="w-10 h-10 bg-white border border-neutral-100 rounded-lg flex items-center justify-center grayscale opacity-50 overflow-hidden p-2 shadow-sm">
               <img src={logoOfficial} alt="QConnect Logo" className="w-full h-full object-contain" />
             </div>
-            <span>© 2026 QConnect • The Sacred Breath</span>
+            <span>© 2026 QConnect • The Heart's Journey</span>
           </div>
           <div className="flex gap-12">
             <a href="/privacy" className="hover:text-primary transition-colors">Privacy</a>
