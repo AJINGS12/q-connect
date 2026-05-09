@@ -315,7 +315,7 @@ const Home: React.FC = () => {
             </div>
 
             <div 
-              onClick={() => navigate(`/quran/${profile?.last_surah_num || '1'}`)} 
+              onClick={() => navigate(`/quran/${profile?.last_surah_num}`)} 
               className="premium-card p-10 md:p-14 flex flex-col md:flex-row gap-12 items-center group cursor-pointer active:scale-[0.99] relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -324,20 +324,20 @@ const Home: React.FC = () => {
                 <img src={quranImg} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 <div className="absolute bottom-6 left-6 flex items-center gap-2">
-                   <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[10px] font-bold uppercase tracking-widest">Surah {profile?.last_surah_num || '1'}</div>
+                   <div className="px-3 py-1.5 bg-white/20 backdrop-blur-md rounded-lg text-white text-[10px] font-bold uppercase tracking-widest">Surah {profile?.last_surah_num}</div>
                 </div>
               </div>
 
               <div className="flex-grow space-y-8 w-full relative z-10">
                 <div className="space-y-1">
                   <p className="text-[10px] text-primary font-black tracking-[0.3em] uppercase">My Progress</p>
-                  <h3 className="text-3xl md:text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name || 'Al-Fatihah'}</h3>
+                  <h3 className="text-3xl md:text-5xl font-display font-bold text-secondary tracking-tight group-hover:text-primary transition-colors">{profile?.last_surah_name}</h3>
                 </div>
                 
                 <div className="flex items-center gap-8">
                    <div className="space-y-1">
                       <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Progress</p>
-                      <p className="text-lg font-bold text-secondary italic">Part of Chapter {Math.ceil((parseInt(profile?.last_surah_num) || 1) / 4)}</p>
+                      <p className="text-lg font-bold text-secondary italic">Part of Chapter {Math.ceil((parseInt(profile?.last_surah_num)) / 4)}</p>
                    </div>
                    <div className="w-px h-10 bg-neutral-100" />
                    <div className="space-y-1">
