@@ -82,13 +82,14 @@ export function calculateMemorizationScore(events: UserActivity[], targetVerses 
 // D. Reflection Score (15%)
 export function calculateReflectionScore(events: UserActivity[]): number {
   let bookmarks = 0;
-  let notes = 0; 
+  let reflectionViews = 0;
   let pauseIntentScore = 0;
   
   let lastEventTime = 0;
 
   for (const ev of events) {
      if (ev.interaction_type === 'bookmark') bookmarks++;
+     if (ev.interaction_type === 'reflection_view') reflectionViews++;
      
      // Evaluate pause intent if we have adjacent scroll events
      if (ev.interaction_type === 'scroll') {
@@ -103,7 +104,7 @@ export function calculateReflectionScore(events: UserActivity[]): number {
      }
   }
 
-  const rawReflection = (bookmarks * 2) + (notes * 5) + pauseIntentScore;
+  const rawReflection = (bookmarks * 3) + (reflectionViews * 5) + pauseIntentScore;
   return Math.min(100, rawReflection); // Cap at 100
 }
 

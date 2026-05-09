@@ -8,6 +8,8 @@ import { supabase } from '../lib/supabaseClient';
 import { addQuranUserBookmark } from '../services/quranUserApi';
 import { useVerseEngagement } from '../hooks/useVerseEngagement';
 import { activityTrackerEngine } from '../services/activityService';
+import ContextualCompanion from '../components/ContextualCompanion';
+import { getReflectionPrompt, ReflectionPrompt } from '../services/reflectionService';
 
 interface SurahViewProps {
   chapterId: number;
@@ -69,6 +71,8 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   const [audioError, setAudioError] = useState<string | null>(null);
   const [bookmarkSaving, setBookmarkSaving] = useState(false);
   const [bookmarkStatus, setBookmarkStatus] = useState<string | null>(null);
+  const [activePrompt, setActivePrompt] = useState<ReflectionPrompt | null>(null);
+  const [milestonesReached, setMilestonesReached] = useState<number[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const verseRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
@@ -115,8 +119,16 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     if (!verses.length || hasCompletedSurah) return;
     if (completedVerses.length >= verses.length) {
       handleSurahCompletion();
+      if (!activePrompt) {
+        setActivePrompt(getReflectionPrompt('completion', chapterId));
+      }
+    } else if (verses.length > 10 && completedVerses.length === Math.floor(verses.length / 2)) {
+      if (!milestonesReached.includes(50)) {
+        setActivePrompt(getReflectionPrompt('milestone', chapterId));
+        setMilestonesReached(prev => [...prev, 50]);
+      }
     }
-  }, [completedVerses, verses.length, hasCompletedSurah]);
+  }, [completedVerses, verses.length, hasCompletedSurah, chapterId, milestonesReached, activePrompt]);
 
   useEffect(() => {
     audioRef.current = new Audio();
@@ -335,7 +347,10 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
       <nav className="sticky top-0 z-50 w-full bg-[#F8FAFC]/90 backdrop-blur-xl border-b border-neutral-200/60 shadow-sm mb-6 safe-top">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
           <button 
-            onClick={() => navigate('/quran')} 
+            onClick={() => {
+              const prompt = getReflectionPrompt('exit');
+              setActivePrompt(prompt);
+            }} 
             className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-neutral-200 shadow-sm text-[#00695C] hover:border-[#00695C]/30 transition-all active:scale-95 shrink-0"
           >
             <ChevronLeft size={18} />
@@ -346,6 +361,31 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
           </div>
         </div>
       </nav>
+
+      <ContextualCompanion 
+        prompt={activePrompt} 
+        onClose={() => {
+          if (activePrompt) {
+            // Log reflection event
+            activityTrackerEngine.logEvent({
+               user_id: '',
+               surah_number: chapterId,
+               ayah_number: currentAudioIndex !== null ? currentAudioIndex + 1 : 1,
+               interaction_type: 'reflection_view',
+               timestamp_start: new Date().toISOString(),
+               timestamp_end: new Date().toISOString(),
+               duration_seconds: 5,
+               visibility_ratio: 1.0,
+               scroll_velocity: 0
+            });
+          }
+
+          if (activePrompt?.type === 'exit') {
+            navigate('/quran');
+          }
+          setActivePrompt(null);
+        }}
+      />
 
       <div className="px-4 md:px-6 max-w-4xl mx-auto">
 

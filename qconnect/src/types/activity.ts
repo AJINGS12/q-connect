@@ -1,4 +1,4 @@
-export type InteractionType = 'scroll' | 'recite' | 'listen' | 'bookmark' | 'repeat_view';
+export type InteractionType = 'scroll' | 'recite' | 'listen' | 'bookmark' | 'repeat_view' | 'reflection_view';
 
 export interface UserActivity {
   id?: string; // Optional because DB will auto-generate it (UUID)
