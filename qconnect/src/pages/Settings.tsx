@@ -105,12 +105,12 @@ const Settings: React.FC = () => {
         <section className="premium-card p-10 flex items-center gap-8 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-[0.03] text-primary group-hover:scale-110 transition-transform duration-1000"><User size={120} /></div>
           <div className="w-24 h-24 rounded-[32px] bg-primary/5 flex items-center justify-center text-primary text-4xl font-display font-bold uppercase shadow-inner border border-white relative z-10">
-            {profile?.full_name?.charAt(0) || <User size={32} />}
+            {profile?.display_name?.charAt(0) || <User size={32} />}
           </div>
           <div className="relative z-10 space-y-3">
             <div className="space-y-1">
                <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">Account Holder</span>
-               <h2 className="text-3xl font-display font-bold text-secondary tracking-tight italic">{profile?.full_name || 'User'}</h2>
+               <h2 className="text-3xl font-display font-bold text-secondary tracking-tight italic">{profile?.display_name || 'User'}</h2>
             </div>
             <div className="flex gap-4">
               <div className="bg-primary/5 border border-primary/10 text-primary px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">

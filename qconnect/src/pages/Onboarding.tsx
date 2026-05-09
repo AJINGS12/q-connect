@@ -49,7 +49,7 @@ const Onboarding: React.FC = () => {
           .from('user_profiles')
           .update({ 
             themes: [selectedTheme],
-            full_name: fullName,
+            display_name: fullName,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id);
@@ -60,7 +60,7 @@ const Onboarding: React.FC = () => {
           .from('user_profiles')
           .insert({ 
             id: user.id, 
-            full_name: fullName,
+            display_name: fullName,
             themes: [selectedTheme],
             updated_at: new Date().toISOString()
           });
