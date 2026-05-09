@@ -69,7 +69,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-bg-soft pb-24 font-body transition-all duration-700">
       {/* --- HEADER --- */}
-      <header className="fixed top-0 left-0 w-full z-50 glass-panel border-none shadow-none bg-white/40">
+      <header className="fixed top-0 left-0 w-full z-50 glass-panel border-none shadow-none bg-white/40 safe-top">
         <div className="flex items-center justify-between px-8 py-4 max-w-7xl mx-auto w-full">
           <div className="flex items-center gap-3">
              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg border border-neutral-100 overflow-hidden p-1">
@@ -86,7 +86,7 @@ const LandingPage: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-grow pt-32">
+      <main className="flex-grow pt-40">
         {/* --- HERO SECTION --- */}
         <section className="pt-20 pb-32 px-6 text-center max-w-5xl mx-auto relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] -z-10 pointer-events-none" />

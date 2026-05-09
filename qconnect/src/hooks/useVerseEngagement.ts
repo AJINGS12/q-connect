@@ -5,13 +5,14 @@ interface UseVerseEngagementProps {
   surahNumber: number;
   ayahNumber: number;
   externalRef?: React.RefObject<HTMLDivElement>;
+  onComplete?: () => void;
 }
 
 /**
  * Hook to track passive reading of a verse using IntersectionObserver.
  * It strictly adheres to the 0.7 visibility threshold and calculates dwell time.
  */
-export function useVerseEngagement({ surahNumber, ayahNumber, externalRef }: UseVerseEngagementProps) {
+export function useVerseEngagement({ surahNumber, ayahNumber, externalRef, onComplete }: UseVerseEngagementProps) {
   const internalRef = useRef<HTMLDivElement | null>(null);
   const verseRef = externalRef || internalRef;
   
@@ -66,6 +67,10 @@ export function useVerseEngagement({ surahNumber, ayahNumber, externalRef }: Use
                 visibility_ratio: maxIntersectionRatio.current, // Might be 0.9 or 1.0 depending on scroll
                 scroll_velocity: velocity
              });
+             
+             if (duration >= 1.5 && onComplete) {
+                onComplete();
+             }
 
              // Reset for next interaction (if user revisits by scrolling back up)
              maxIntersectionRatio.current = 0;

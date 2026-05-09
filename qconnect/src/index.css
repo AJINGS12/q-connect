@@ -60,11 +60,13 @@
 
   /* Safe Area Utilities for Mobile PWA */
   .safe-top {
-    padding-top: env(safe-area-inset-top, 20px);
+    padding-top: 24px; /* Default fallback */
+    padding-top: env(safe-area-inset-top, 24px);
   }
   
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 20px);
+    padding-bottom: 24px; /* Default fallback */
+    padding-bottom: env(safe-area-inset-bottom, 24px);
   }
 }
 

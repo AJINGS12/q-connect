@@ -34,7 +34,8 @@ const VerseItem = ({
   useVerseEngagement({
     surahNumber: chapterId,
     ayahNumber: i + 1,
-    externalRef: externalRef
+    externalRef: externalRef,
+    onComplete: () => toggleVerse(v.id, true)
   });
 
   const finalTranslation = v.translations?.[0]?.text.replace(/<(?:.|\n)*?>/gm, '') || "Translation not found";
@@ -123,10 +124,11 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
       if (!activePrompt) {
         setActivePrompt(getReflectionPrompt('completion', chapterId));
       }
-    } else if (verses.length > 10 && completedVerses.length === Math.floor(verses.length / 2)) {
-      if (!milestonesReached.includes(50)) {
+    } else if (verses.length > 20 && completedVerses.length > 0 && completedVerses.length % 20 === 0) {
+      const milestoneKey = Math.floor(completedVerses.length / 20);
+      if (!milestonesReached.includes(milestoneKey)) {
         setActivePrompt(getReflectionPrompt('milestone', chapterId));
-        setMilestonesReached(prev => [...prev, 50]);
+        setMilestonesReached(prev => [...prev, milestoneKey]);
       }
     }
   }, [completedVerses, verses.length, hasCompletedSurah, chapterId, milestonesReached, activePrompt]);
@@ -330,10 +332,13 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
     return words.map(word => word.transliteration?.text).filter(Boolean).join(' ');
   };
 
-  const toggleVerse = (id: number) => {
-    setCompletedVerses(prev => 
-      prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id]
-    );
+  const toggleVerse = (id: number, forceAdd?: boolean) => {
+    setCompletedVerses(prev => {
+      if (forceAdd) {
+        return prev.includes(id) ? prev : [...prev, id];
+      }
+      return prev.includes(id) ? prev.filter(v => v !== id) : [...prev, id];
+    });
   };
 
   if (loading || !surahInfo) return (
