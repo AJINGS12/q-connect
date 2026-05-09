@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSurahs } from "../api/quran";
