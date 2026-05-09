@@ -9,7 +9,8 @@ import { addQuranUserBookmark } from '../services/quranUserApi';
 import { useVerseEngagement } from '../hooks/useVerseEngagement';
 import { activityTrackerEngine } from '../services/activityService';
 import ContextualCompanion from '../components/ContextualCompanion';
-import { getReflectionPrompt, ReflectionPrompt } from '../services/reflectionService';
+import { getReflectionPrompt } from '../services/reflectionService';
+import type { ReflectionPrompt } from '../services/reflectionService';
 
 interface SurahViewProps {
   chapterId: number;

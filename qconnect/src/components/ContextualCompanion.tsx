@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, Sparkles, Bookmark, Share2 } from 'lucide-react';
-import { ReflectionPrompt } from '../services/reflectionService';
+import type { ReflectionPrompt } from '../services/reflectionService';
 
 interface ContextualCompanionProps {
   prompt: ReflectionPrompt | null;
