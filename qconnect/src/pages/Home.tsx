@@ -176,7 +176,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* --- TOP NAV --- */}
-      <nav className="glass-panel sticky top-0 z-50 py-3">
+      <nav className="glass-panel sticky top-0 z-50 py-3 safe-top">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-2 flex items-center gap-3 md:gap-8">
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <button onClick={() => setIsMenuOpen(true)} className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-neutral-50 border border-neutral-100/50 rounded-xl md:rounded-2xl transition-all active:scale-95 text-primary bg-white shadow-sm">

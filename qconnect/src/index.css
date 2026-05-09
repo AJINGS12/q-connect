@@ -57,6 +57,15 @@
   .choice-card {
     @apply aspect-square md:aspect-auto md:h-80 flex flex-col items-center justify-center p-8 rounded-[var(--radius-choice-card)] border-2 transition-all duration-500 cursor-pointer;
   }
+
+  /* Safe Area Utilities for Mobile PWA */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 20px);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
 }
 
 /* RTL support for Arabic text */

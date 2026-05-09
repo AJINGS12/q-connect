@@ -62,7 +62,7 @@ const WisdomSearch: React.FC = () => {
   return (
     <div className="min-h-screen bg-bg-soft font-body text-secondary pb-32">
       {/* HEADER */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm safe-top">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 

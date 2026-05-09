@@ -310,7 +310,7 @@ const SocialGroups: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FDFDFD] font-body relative overflow-x-hidden selection:bg-[#00695C]/20 text-neutral-800 pb-24">
       {/* TOP NAVIGATION */}
-      <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+      <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm safe-top">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
           <button 
             onClick={() => selectedGroup ? setSelectedGroup(null) : navigate("/home")}

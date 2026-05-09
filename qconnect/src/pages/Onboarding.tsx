@@ -89,7 +89,7 @@ const Onboarding: React.FC = () => {
   return (
     <div className="min-h-screen bg-bg-soft flex flex-col font-body transition-all duration-700">
       {/* --- TOP HEADER --- */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm w-full">
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm w-full safe-top">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 

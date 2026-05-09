@@ -33,7 +33,7 @@ const Reflections: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-bg-soft pb-12 font-body transition-all duration-700">
       {/* Navigation Header */}
-      <nav className="glass-panel sticky top-0 z-50 py-6 px-8 border-none bg-white/70">
+      <nav className="glass-panel sticky top-0 z-50 py-6 px-8 border-none bg-white/70 safe-top">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button 
             onClick={() => navigate('/home')}

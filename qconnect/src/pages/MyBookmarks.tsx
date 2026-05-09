@@ -56,7 +56,7 @@ const MyBookmarks: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-bg-soft pb-12 font-body transition-all duration-700">
       {/* Header */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm safe-top">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 

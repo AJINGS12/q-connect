@@ -257,7 +257,7 @@ const InsightsPage: React.FC = () => {
       </div>
 
       {/* TOP NAVIGATION */}
-      <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+      <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm safe-top">
         <div className="max-w-5xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
           <button 
             onClick={() => navigate("/home")}

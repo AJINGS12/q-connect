@@ -69,7 +69,7 @@ const Quran: React.FC = () => {
       </div>
 
       {/* --- NAVBAR --- */}
-      <nav className="relative z-50 w-full sticky top-0 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm">
+      <nav className="relative z-50 w-full sticky top-0 bg-white/90 backdrop-blur-xl border-b border-neutral-100/60 shadow-sm safe-top">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-3 flex items-center gap-3">
           <button
             onClick={() => navigate("/home")}

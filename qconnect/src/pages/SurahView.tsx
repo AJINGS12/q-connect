@@ -332,7 +332,7 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-44">
       {/* TOP NAVIGATION */}
-      <nav className="sticky top-0 z-50 w-full bg-[#F8FAFC]/90 backdrop-blur-xl border-b border-neutral-200/60 shadow-sm mb-6">
+      <nav className="sticky top-0 z-50 w-full bg-[#F8FAFC]/90 backdrop-blur-xl border-b border-neutral-200/60 shadow-sm mb-6 safe-top">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
           <button 
             onClick={() => navigate('/quran')} 
