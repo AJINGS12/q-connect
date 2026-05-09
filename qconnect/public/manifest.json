@@ -4,7 +4,7 @@
   "description": "Embed Quranic wisdom into your daily rhythm through contextual nudges, reflection journals, and gamified knowledge quests.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FDFDFD",
+  "background_color": "#00695C",
   "theme_color": "#00695C",
   "orientation": "portrait-primary",
   "scope": "/",
