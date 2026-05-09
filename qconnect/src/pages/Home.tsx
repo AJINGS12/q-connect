@@ -270,7 +270,18 @@ const Home: React.FC = () => {
               <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Welcome</span>
               <h2 className="text-3xl font-display font-bold text-secondary">Your Quranic Journey</h2>
             </div>
-<truncated 505 bytes>
+            <div 
+              onClick={() => navigate('/quran')} 
+              className="premium-card p-10 md:p-14 flex flex-col md:flex-row gap-12 items-center group cursor-pointer active:scale-[0.99] relative overflow-hidden bg-primary text-white border-none"
+            >
+              <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              
+              <div className="w-full md:w-96 aspect-[4/3] rounded-[32px] overflow-hidden shadow-2xl relative z-10 border-4 border-white/20">
+                <img src={quranImg} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+                   <p className="text-white text-lg font-display font-medium italic">Begin with the Wisdom of the Ages</p>
+                </div>
+              </div>
               <div className="flex-grow space-y-8 w-full relative z-10">
                 <div className="space-y-1">
                   <p className="text-[10px] text-white/60 font-black tracking-[0.3em] uppercase">Begin your first session</p>
