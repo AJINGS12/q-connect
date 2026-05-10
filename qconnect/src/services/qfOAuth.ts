@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabaseClient';
+
 const QF_OAUTH_BASE = 'https://oauth2.quran.foundation';
 
 // --- DYNAMIC REDIRECT URI (Supports both Localhost and Vercel) ---
@@ -24,9 +26,21 @@ export const getQfAccessToken = () => {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 };
 
-export const clearQfAccessToken = () => {
+export const clearQfAccessToken = async () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    try {
+      await supabase.from('user_profiles').update({
+        qf_access_token: 'DISCONNECTED',
+        qf_refresh_token: null
+      }).eq('id', user.id);
+    } catch (e) {
+      console.error('Failed to sync disconnect to Supabase', e);
+    }
+  }
 };
 
 // Silently refresh the access token using our backend API
@@ -48,6 +62,20 @@ export const refreshQfToken = async (): Promise<string | null> => {
     }
     localStorage.setItem(ACCESS_TOKEN_KEY, json.access_token);
     if (json.refresh_token) localStorage.setItem(REFRESH_TOKEN_KEY, json.refresh_token);
+
+    // Sync refreshed tokens to Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      try {
+        await supabase.from('user_profiles').update({
+          qf_access_token: json.access_token,
+          qf_refresh_token: json.refresh_token || null
+        }).eq('id', user.id);
+      } catch (e) {
+        console.error('Failed to sync refreshed token to Supabase', e);
+      }
+    }
+
     return json.access_token;
   } catch {
     clearQfAccessToken();
@@ -59,6 +87,7 @@ export const startQfLogin = () => {
   if (!QF_CLIENT_ID) throw new Error('Missing QF_CLIENT_ID');
   const state = crypto.randomUUID();
   localStorage.setItem('qf_oauth_state', state);
+  localStorage.setItem('qf_oauth_return_to', window.location.pathname + window.location.search);
 
   const scope = 'bookmark';
   const url =

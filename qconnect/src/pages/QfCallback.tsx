@@ -58,6 +58,18 @@ export default function QfCallback() {
         const { data: { user } } = await supabase.auth.getUser();
 
         if (user) {
+          // Sync new tokens to Supabase for cross-device support
+          if (result?.access_token) {
+            try {
+              await supabase.from('user_profiles').update({
+                qf_access_token: result.access_token,
+                qf_refresh_token: result.refresh_token || null
+              }).eq('id', user.id);
+            } catch (e) {
+              console.warn('[QfCallback] Failed to sync tokens to Supabase, they are still saved locally.', e);
+            }
+          }
+
           const { data: profile, error: profileError } = await supabase
             .from('user_profiles')
             .select('role, themes')
@@ -69,8 +81,11 @@ export default function QfCallback() {
             console.log('[QfCallback] Profile incomplete, redirecting to onboarding');
             navigate('/onboarding', { replace: true });
           } else {
-            console.log('[QfCallback] Profile complete, redirecting to home');
-            navigate('/home', { replace: true });
+            console.log('[QfCallback] Profile complete, returning to previous page');
+            localStorage.setItem('qf_oauth_success', 'true');
+            const returnTo = localStorage.getItem('qf_oauth_return_to') || '/home';
+            localStorage.removeItem('qf_oauth_return_to');
+            navigate(returnTo, { replace: true });
           }
         } else {
           // No user found, send to home (which will handle auth redirect)
