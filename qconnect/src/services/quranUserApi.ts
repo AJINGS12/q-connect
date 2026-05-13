@@ -167,3 +167,40 @@ export const getQuranUserBookmarks = async (): Promise<QuranBookmark[]> => {
     return [];
   }
 };
+
+export const removeQuranUserBookmark = async (id: string): Promise<{ success: boolean; message?: string }> => {
+  let headers = getUserApiHeaders();
+  if (!headers) {
+    return { success: false, message: 'Please connect your Quran.com account first.' };
+  }
+
+  try {
+    let res = await fetch(`${QURAN_USER_API_BASE}/bookmarks/${id}`, {
+      method: 'DELETE',
+      headers,
+    });
+
+    // Auto-refresh if token expired
+    if (res.status === 403) {
+      const newToken = await refreshQfToken();
+      if (newToken) {
+        headers = { ...headers, 'x-auth-token': newToken };
+        res = await fetch(`${QURAN_USER_API_BASE}/bookmarks/${id}`, {
+          method: 'DELETE',
+          headers,
+        });
+      }
+    }
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      console.error('Quran User API delete bookmark failed:', res.status, errBody);
+      return { success: false, message: `Delete request failed (${res.status}).` };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting Quran user bookmark:', error);
+    return { success: false, message: 'Network error while deleting bookmark.' };
+  }
+};

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, BookMarked, Wifi, WifiOff } from 'lucide-react';
+import { ChevronLeft, BookMarked, Wifi, WifiOff, Trash2 } from 'lucide-react';
 import logoOfficial from '../assets/logo_official.png';
-import { getQuranUserBookmarks } from '../services/quranUserApi';
+import { getQuranUserBookmarks, removeQuranUserBookmark } from '../services/quranUserApi';
 import type { QuranBookmark } from '../services/quranUserApi';
 import { getQfAccessToken, startQfLogin } from '../services/qfOAuth';
 
@@ -23,6 +23,108 @@ const useSurahNames = (keys: number[]) => {
   }, [keys.join(',')]);
 
   return names;
+};
+
+const BookmarkItem = ({ bm, surahNames, formatDate, onDelete, idx, navigate }: any) => {
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isSwiped, setIsSwiped] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEndEvent = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      setIsSwiped(true);
+    } else if (isRightSwipe) {
+      setIsSwiped(false);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDeleting(true);
+    await onDelete(bm.id);
+  };
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-2xl md:rounded-[28px] group/item animate-in fade-in slide-in-from-bottom-8 duration-700" style={{ transitionDelay: `${idx * 30}ms` }}>
+      {/* Delete Button Background */}
+      <div 
+        className="absolute inset-y-0 right-0 w-24 bg-red-500 flex flex-col items-center justify-center text-white cursor-pointer hover:bg-red-600 transition-colors" 
+        onClick={handleDelete}
+      >
+        {isDeleting ? (
+          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        ) : (
+          <>
+            <Trash2 size={24} />
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-widest">Delete</span>
+          </>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEndEvent}
+        onClick={() => {
+          if (isSwiped) setIsSwiped(false);
+          else navigate(`/quran/${bm.key}`);
+        }}
+        className={`premium-card p-6 md:p-8 flex items-center gap-4 md:gap-8 group cursor-pointer active:scale-[0.99] transition-transform duration-300 relative bg-white z-10 
+          ${isSwiped ? '-translate-x-24' : 'translate-x-0'} 
+          group-hover/item:-translate-x-24 lg:group-hover/item:-translate-x-24 lg:translate-x-0`}
+      >
+        {/* Icon */}
+        <div className={`w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-[28px] flex items-center justify-center shrink-0 transition-all duration-700 group-hover:scale-110 ${bm.isReading ? 'bg-primary text-white shadow-xl shadow-primary/30 rotate-3' : 'bg-primary/5 text-primary'}`}>
+          <BookMarked className={`w-6 h-6 md:w-7 md:h-7 ${bm.isReading ? 'animate-pulse' : ''}`} />
+        </div>
+
+        {/* Info */}
+        <div className="flex-grow min-w-0 space-y-3">
+          <div className="flex items-center gap-3">
+            {bm.isReading && (
+              <div className="bg-primary/5 px-2 py-0.5 rounded-lg">
+                <span className="text-[8px] font-black uppercase tracking-widest text-primary">In Progress</span>
+              </div>
+            )}
+            <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">
+              Surah {bm.key}
+            </span>
+          </div>
+          <h3 className="text-2xl font-display font-bold text-secondary group-hover:text-primary transition-colors truncate tracking-tight">
+            {surahNames[bm.key] || `Surah ${bm.key}`}
+          </h3>
+          <div className="flex items-center gap-4">
+             <span className="text-xs font-bold text-neutral-400">Ayah {bm.verseNumber}</span>
+             <div className="w-1 h-1 rounded-full bg-neutral-200" />
+             <span className="text-xs font-bold text-neutral-400">{formatDate(bm.createdAt)}</span>
+          </div>
+        </div>
+
+        {/* Arrow */}
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-200 group-hover:bg-primary group-hover:text-white group-hover:translate-x-3 transition-all shrink-0 hidden md:flex">
+           <ChevronLeft className="w-5 h-5 rotate-180" />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const MyBookmarks: React.FC = () => {
@@ -51,6 +153,15 @@ const MyBookmarks: React.FC = () => {
     try {
       return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
     } catch { return ''; }
+  };
+
+  const handleDeleteBookmark = async (id: string) => {
+    const result = await removeQuranUserBookmark(id);
+    if (result.success) {
+      setBookmarks(prev => prev.filter(b => b.id !== id));
+    } else {
+      alert(result.message || 'Failed to delete bookmark');
+    }
   };
 
   return (
@@ -152,44 +263,15 @@ const MyBookmarks: React.FC = () => {
             </div>
 
             {bookmarks.map((bm, idx) => (
-              <div
-                key={bm.id}
-                onClick={() => navigate(`/quran/${bm.key}`)}
-                className="premium-card p-6 md:p-8 flex items-center gap-4 md:gap-8 group cursor-pointer active:scale-[0.99] animate-in fade-in slide-in-from-bottom-8 duration-700"
-                style={{ transitionDelay: `${idx * 30}ms` }}
-              >
-                {/* Icon */}
-                <div className={`w-14 h-14 md:w-20 md:h-20 rounded-2xl md:rounded-[28px] flex items-center justify-center shrink-0 transition-all duration-700 group-hover:scale-110 ${bm.isReading ? 'bg-primary text-white shadow-xl shadow-primary/30 rotate-3' : 'bg-primary/5 text-primary'}`}>
-                  <BookMarked className={`w-6 h-6 md:w-7 md:h-7 ${bm.isReading ? 'animate-pulse' : ''}`} />
-                </div>
-
-                {/* Info */}
-                <div className="flex-grow min-w-0 space-y-3">
-                  <div className="flex items-center gap-3">
-                    {bm.isReading && (
-                      <div className="bg-primary/5 px-2 py-0.5 rounded-lg">
-                        <span className="text-[8px] font-black uppercase tracking-widest text-primary">In Progress</span>
-                      </div>
-                    )}
-                    <span className="text-[10px] font-black text-neutral-300 uppercase tracking-widest">
-                      Surah {bm.key}
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-display font-bold text-secondary group-hover:text-primary transition-colors truncate tracking-tight">
-                    {surahNames[bm.key] || `Surah ${bm.key}`}
-                  </h3>
-                  <div className="flex items-center gap-4">
-                     <span className="text-xs font-bold text-neutral-400">Ayah {bm.verseNumber}</span>
-                     <div className="w-1 h-1 rounded-full bg-neutral-200" />
-                     <span className="text-xs font-bold text-neutral-400">{formatDate(bm.createdAt)}</span>
-                  </div>
-                </div>
-
-                {/* Arrow */}
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-200 group-hover:bg-primary group-hover:text-white group-hover:translate-x-3 transition-all shrink-0">
-                   <ChevronLeft className="w-5 h-5 rotate-180" />
-                </div>
-              </div>
+              <BookmarkItem 
+                key={bm.id} 
+                bm={bm} 
+                surahNames={surahNames} 
+                formatDate={formatDate} 
+                onDelete={handleDeleteBookmark}
+                idx={idx}
+                navigate={navigate}
+              />
             ))}
           </div>
         )}
