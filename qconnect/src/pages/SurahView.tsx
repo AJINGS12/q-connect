@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { addQuranUserBookmark } from '../services/quranUserApi';
+import { getQfAccessToken } from '../services/qfOAuth';
 import { useVerseEngagement } from '../hooks/useVerseEngagement';
 import { activityTrackerEngine } from '../services/activityService';
 import ContextualCompanion from '../components/ContextualCompanion';
@@ -73,6 +74,7 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   const [audioError, setAudioError] = useState<string | null>(null);
   const [bookmarkSaving, setBookmarkSaving] = useState(false);
   const [bookmarkStatus, setBookmarkStatus] = useState<string | null>(null);
+  const [bookmarkNotConnected, setBookmarkNotConnected] = useState(false);
   const [activePrompt, setActivePrompt] = useState<ReflectionPrompt | null>(null);
   const [milestonesReached, setMilestonesReached] = useState<number[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -309,6 +311,15 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
   };
 
   const handleSaveBookmark = async () => {
+    // Check connection first before doing anything
+    if (!getQfAccessToken()) {
+      setBookmarkNotConnected(true);
+      setBookmarkStatus(null);
+      setTimeout(() => setBookmarkNotConnected(false), 6000);
+      return;
+    }
+    setBookmarkNotConnected(false);
+
     const verseNumber = currentAudioIndex !== null ? currentAudioIndex + 1 : Math.max(1, completedVerses.length || 1);
 
     // Track Bookmark event
@@ -435,6 +446,12 @@ const SurahView: React.FC<SurahViewProps> = ({ chapterId }) => {
             {bookmarkSaving ? 'Saving...' : 'Bookmark'}
           </button>
         </div>
+        {bookmarkNotConnected && (
+          <p className="text-xs text-amber-600 mt-3 px-2 flex items-center gap-1">
+            Connect your Quran.com account to bookmark.{' '}
+            <button onClick={() => navigate('/settings')} className="underline font-bold hover:text-amber-800 transition-colors">Go to Settings →</button>
+          </p>
+        )}
         {bookmarkStatus && (
           <p className="text-xs text-[#00695C] mt-3 px-2">{bookmarkStatus}</p>
         )}

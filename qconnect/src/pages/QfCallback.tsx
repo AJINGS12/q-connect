@@ -70,20 +70,22 @@ export default function QfCallback() {
             }
           }
 
-          const { data: profile, error: profileError } = await supabase
+          const { data: profile } = await supabase
             .from('user_profiles')
-            .select('role, themes')
+            .select('themes')
             .eq('id', user.id)
             .maybeSingle();
 
-          // If no profile or missing required fields, go to onboarding
-          if (!profile || !profile.role || !profile.themes || profile.themes.length === 0) {
-            console.log('[QfCallback] Profile incomplete, redirecting to onboarding');
+          // Only send to onboarding if there's truly no profile at all (brand new user)
+          // Existing users who are just connecting their Quran.com account should never
+          // be redirected back to onboarding — send them to the page they came from.
+          if (!profile) {
+            console.log('[QfCallback] No profile found, redirecting to onboarding');
             navigate('/onboarding', { replace: true });
           } else {
-            console.log('[QfCallback] Profile complete, returning to previous page');
+            console.log('[QfCallback] Profile found, returning to previous page');
             localStorage.setItem('qf_oauth_success', 'true');
-            const returnTo = localStorage.getItem('qf_oauth_return_to') || '/home';
+            const returnTo = localStorage.getItem('qf_oauth_return_to') || '/settings';
             localStorage.removeItem('qf_oauth_return_to');
             navigate(returnTo, { replace: true });
           }
